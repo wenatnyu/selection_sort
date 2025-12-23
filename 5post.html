@@ -70,8 +70,8 @@
     /* --- 结局卡片样式 --- */
     .ending-container { display: flex; flex-direction: column; gap: 20px; margin-top: 40px; }
     .card { padding: 20px; border-radius: 10px; color: white; }
-    .happy-end { background: linear-gradient(135deg, #56ab2f, #a8e063); border-left: 8px solid #2ecc71; }
-    .bad-end { background: linear-gradient(135deg, #636e72, #2d3436); border-left: 8px solid #000; }
+    .happy-end {opacity: 0.9; background: linear-gradient(135deg, #56ab2f, #a8e063); border-left: 8px solid #2ecc71; }
+    .bad-end { opacity: 0.9;;background: linear-gradient(135deg, #636e72, #2d3436); border-left: 8px solid #000; }
     
     /* 坏结局链接样式 */
     .bad-end a {
@@ -163,16 +163,16 @@
       <div class="card happy-end">
         <h2 style="color: white; margin-top: 0;">🎉 Happy Ending</h2>
         <p style="font-size: 1.2em; font-weight: bold;">Now you have mastered Selection Sort!</p>
-        <p style="opacity: 0.9; color:#d35400; font-weight:700;">Happy Ending：你已经完全掌握了选择排序！</p>
+        <p style="opacity: 1; color:#d36900; font-weight:700;">Happy Ending：你已经完全掌握了选择排序！</p>
         <div style="font-size: 2em; text-align: right;">🏆</div>
       </div>
       <div class="card bad-end">
         <h2 style="color: #dff9fb; margin-top: 0;">💀 Bad Ending (Sad Story)</h2>
         <p style="font-size: 1.2em; font-weight: bold;">We never use this sort in practice, except for IB exams.</p>
-        <p style="opacity: 0.9; color:#d35400; font-weight:700;">悲惨故事：在现实工程开发中，我们几乎永远不会使用这个排序算法…… 除非是为了应付 IB 考试。</p>
+        <p style="opacity: 1; color:#d3ba00; font-weight:700;">悲惨故事：在现实工程开发中，我们几乎永远不会使用这个排序算法…… 除非是为了应付 IB 考试。</p>
         <p style="margin-top: 25px;">
            <a href="https://www.youtube.com/watch?v=ZZuD6iUe3Pc" target="_blank">
-             👉 Click here to watch the explanation video<br>(点击此处观看视频)
+             👉 Click here to explore the other sorting video<br>
            </a>
         </p>
         <div style="font-size: 2em; text-align: right; margin-top: 10px;">🥀</div>
