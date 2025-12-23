@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Selection Sort – Class Notes</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; max-width: 800px; }
+    h1, h2, h3 { color: #2c3e50; }
+    h1 { font-size: 1.8em; }
+    h2 { font-size: 1.4em; margin-top: 1.5em; }
+    h3 { font-size: 1.2em; margin-top: 1em; }
+    p { line-height: 1.6; }
+    code { background: #f4f4f4; padding: 0.1em 0.3em; }
+    pre { background: #f4f4f4; padding: 0.5em; overflow-x: auto; }
+    li { margin-bottom: 0.5em; }
+  </style>
+</head>
+<body>
+
+<h1>Selection Sort – Class Notes</h1>
+
+<p><strong>Topic B2.4.3:</strong> We will construct and trace the <em>Selection Sort</em> algorithm (and briefly recall <em>Bubble Sort</em>), and evaluate their time and space complexities:contentReference[oaicite:14]{index=14}. By the end of this lesson, you should understand how selection sort works and be able to apply it to sort a list of numbers.</p>
+
+<h2>Bubble Sort Recap (Introduction)</h2>
+<p><em>Bubble sort</em> is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. On each pass, larger elements "bubble" toward the end of the list. The algorithm continues until no swaps are needed, which means the list is sorted.</p>
+<ul>
+  <li><strong>How it works:</strong> Starting at the beginning of the list, compare each pair of adjacent elements. If a pair is out of order (first > second for ascending sort), swap them. Continue this for the full pass. Each pass places the next-largest element in its correct position at the end.</li>
+  <li><strong>Example:</strong> Given [5, 1, 4, 2], bubble sort will first compare 5 and 1 (swap to get [1,5,4,2]), then 5 and 4 (swap → [1,4,5,2]), then 5 and 2 (swap → [1,4,2,5]). After the first pass, 5 is in correct position at end. Repeat for remaining unsorted portion.</li>
+  <li><strong>Performance:</strong> Worst-case time complexity O(n<sup>2</sup>). Bubble sort can be optimized to detect no swaps in a pass and stop early (best case O(n) if the list is already sorted):contentReference[oaicite:15]{index=15}:contentReference[oaicite:16]{index=16}. It is an in-place sort (O(1) extra space). It is also <em>stable</em> (equal elements preserve their order).</li>
+</ul>
+
+<h2>Selection Sort – Concept and Algorithm</h2>
+<p><em>Selection sort</em> is another straightforward sorting algorithm. It segments the list into a sorted portion and an unsorted portion:contentReference[oaicite:17]{index=17}. Initially, the sorted portion is empty and the unsorted portion is the entire list.</p>
+<ul>
+  <li><strong>Main idea:</strong> Repeatedly select the smallest element from the unsorted portion and swap it with the first element of that unsorted portion. This grows the sorted portion one element at a time, from the front of the list:contentReference[oaicite:18]{index=18}.</li>
+  <li>After the k-th iteration, the first k elements of the array are in sorted order (these are the k smallest elements). The rest of the array (positions k+1 to end) remains unsorted.</li>
+  <li>The algorithm stops after placing the (n-1)-th smallest element, by which point the array is fully sorted (the last element will be the largest by elimination).</li>
+</ul>
+
+<h3>Step-by-Step Example</h3>
+<p>Consider the array: <code>[64, 25, 12, 22, 11]</code></p>
+<ol>
+  <li><strong>Initial state:</strong> Sorted portion is empty; Unsorted portion is the entire array [64, 25, 12, 22, 11].</li>
+  <li><strong>Iteration 1 (i = 0):</strong> Find the smallest element in the unsorted portion (the whole list). The smallest value is 11. Swap it with the element at index 0 (first position).<br>
+      Array after 1st swap: <code>[11, 25, 12, 22, 64]</code> (11 is now in sorted position at index 0).</li>
+  <li><strong>Iteration 2 (i = 1):</strong> Now index 0 is considered sorted. Find the smallest element in the remaining unsorted portion (indices 1–4: 25, 12, 22, 64). The smallest is 12. Swap it with the element at index 1.<br>
+      Array after 2nd swap: <code>[11, 12, 25, 22, 64]</code> (First two positions are sorted: 11, 12).</li>
+  <li><strong>Iteration 3 (i = 2):</strong> Sorted portion = first 2 elements. Find smallest in unsorted portion (indices 2–4: 25, 22, 64). Smallest is 22. Swap it with element at index 2.<br>
+      Array after 3rd swap: <code>[11, 12, 22, 25, 64]</code> (Now first three are sorted).</li>
+  <li><strong>Iteration 4 (i = 3):</strong> Sorted = first 3 elements. Find smallest in remaining unsorted (indices 3–4: 25, 64). Smallest is 25. Swap it with element at index 3 (which is itself in this case, so array stays the same).<br>
+      Array after 4th swap: <code>[11, 12, 22, 25, 64]</code>.</li>
+  <li>At this point, the array is fully sorted. (The last element 64 is now the only remaining unsorted element, which must be the largest, so we are done.)</li>
+</ol>
+<p><em>Note:</em> In this example, selection sort made 4 swaps (one per iteration except the last one). The final sorted array is <code>[11, 12, 22, 25, 64]</code>.</p>
+
+<h3>Pseudocode for Selection Sort</h3>
+<pre><code>// A is an array of length n
+for i from 0 to n-2:
+    minIndex = i
+    for j from i+1 to n-1:
+        if A[j] < A[minIndex]:
+            minIndex = j
+    // Swap the smallest found with A[i]
+    swap A[i] and A[minIndex]</code></pre>
+<p>This pseudocode shows two nested loops. The outer loop selects the position <code>i</code> where the next smallest element should go. The inner loop scans the rest of the array (from <code>i+1</code> to end) to find the smallest element and remembers its index (<code>minIndex</code>). After the inner loop, the smallest element is swapped with the element at position <code>i</code>.</p>
+
+<h3>Selection Sort Code Examples</h3>
+<p>You can implement selection sort in any programming language. Here are examples in Java and Python:</p>
+
+<h4>Java Implementation</h4>
+<pre><code class="language-java">public static void selectionSort(int[] arr) {
+    int n = arr.length;
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        // find the minimum element in the unsorted part
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        // swap the found minimum element with arr[i]
+        int temp = arr[i];
+        arr[i] = arr[minIndex];
+        arr[minIndex] = temp;
+    }
+}</code></pre>
+
+<h4>Python Implementation</h4>
+<pre><code class="language-python">def selection_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        # swap the smallest found with arr[i]
+        arr[i], arr[min_index] = arr[min_index], arr[i]</code></pre>
+<p>Both of the above implement the same logic: an outer loop over positions <code>i</code>, and an inner loop to find the min from <code>i</code> to end and swap it into position <code>i</code>. After these loops, the array <code>arr</code> will be sorted in ascending order.</p>
+
+<h2>Time Complexity Analysis</h2>
+<ul>
+  <li><strong>Overall complexity:</strong> Selection sort performs O(n<sup>2</sup>) comparisons in total. This is because of the nested loops: roughly n/2 comparisons on average for each of n passes, giving ~0.5n<sup>2</sup> → O(n<sup>2</sup>):contentReference[oaicite:19]{index=19}.</li>
+  <li><strong>Best, average, worst cases:</strong> All are O(n<sup>2</sup>) for selection sort. Even if the array is already sorted, selection sort will still scan the remaining unsorted elements for each i (it doesn’t know it’s sorted and does not break out early):contentReference[oaicite:20]{index=20}. So there’s no acceleration on a sorted input – it will still do all comparisons, though it might do fewer swaps.</li>
+  <li>By contrast, bubble sort’s best case is O(n) if no swaps are needed (i.e., the array was already sorted and the algorithm can stop early):contentReference[oaicite:21]{index=21}. Selection sort lacks a similar early stopping mechanism.</li>
+</ul>
+
+<h2>Space Complexity</h2>
+<p>Selection sort is <strong>in-place</strong>. It only uses a few temporary variables (like <code>minIndex</code> and a temp for swapping), and does not require additional arrays or data structures. Thus, the auxiliary space complexity is O(1):contentReference[oaicite:22]{index=22}.</p>
+
+<h2>Stability</h2>
+<p><strong>Is selection sort stable?</strong> No, selection sort is generally <em>not stable</em>. Stability in sorting means that if two elements are equal, they remain in the same order in the sorted output as they were in the input. Selection sort can violate this because it might swap non-adjacent equal items and thus change their order:contentReference[oaicite:23]{index=23}.</p>
+<p><em>Example:</em> Suppose we have an array of objects with values [<code>A(5)</code>, <code>B(5)</code>, <code>C(1)</code>] where A and B have equal “5” values but are different objects. After one iteration, the smallest value 1 (C) will be swapped to the front. This could move C to position 0 and push A(5) or B(5) toward the back. The relative order of A and B might change depending on which one was at index 0 initially. Bubble sort, on the other hand, would not swap equal elements and thus is stable.</p>
+<p><small>*(Stability is not required knowledge at the IB SL level, but it’s a good concept to be aware of. In many practical cases, stability isn’t crucial, but if it is needed, other algorithms like merge sort or insertion sort can be stable choices.)*</small></p>
+
+<h2>Practice Exercises</h2>
+<ol>
+  <li><strong>Trace the algorithm:</strong> Given the array <code>[7, 3, 9, 1, 6]</code>, manually perform selection sort. Show the state of the array after each iteration of the outer loop (each pass where the smallest remaining element is selected and swapped). Write down the array contents after each swap.</li>
+  <li><strong>Complexity understanding:</strong> Why is the time complexity of selection sort O(n<sup>2</sup>)? Explain in your own words. (For instance, consider how many comparisons are done for a list of size n, and what happens when n grows larger.) Also, if you doubled the number of elements in the array, roughly how much longer would selection sort take?</li>
+  <li><strong>Comparison question:</strong> Bubble sort can be optimized to finish early if the list is already sorted (potentially giving O(n) performance in the best case). Can selection sort be optimized in a similar way? Why or why not?</li>
+  <li><strong>Bubble vs Selection:</strong> Name one advantage of selection sort over bubble sort, and one advantage of bubble sort over selection sort. (Think about the number of swaps, and the scenario when the input list is already sorted.)</li>
+</ol>
+
+<p><em>These exercises will help reinforce how the selection sort algorithm operates and how it compares to bubble sort. Be prepared to discuss your answers and reasoning!</em></p>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Selection Sort Interactive Practice</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { color: #2c3e50; }
+    #array button { 
+      font-size: 1em; margin: 0.2em; padding: 0.5em 1em; 
+      cursor: pointer; 
+    }
+    #array button:disabled { 
+      background-color: #dddddd; color: #888888; cursor: default; 
+    }
+    #message { font-weight: bold; margin-top: 1em; }
+  </style>
+</head>
+<body>
+
+<h1>Selection Sort Interactive Practice</h1>
+<p>Instructions: Below is an array of random numbers. Your goal is to sort it using the selection sort approach. In each round, <strong>click the smallest element</strong> in the <em>unsorted</em> portion of the array. The chosen element will be swapped into its correct sorted position. Gray buttons indicate the portion that is already sorted and fixed in place. Continue until the array is completely sorted! You can press "New Array" to restart with a new random list.</p>
+
+<div id="array"></div>
+<p id="message"></p>
+<button onclick="startSort()">New Array</button>
+
+<script>
+let arr = [];
+let i = 0;
+
+function displayArray() {
+  const container = document.getElementById('array');
+  container.innerHTML = "";
+  arr.forEach((val, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = val;
+    if (index < i) {
+      // Already sorted portion
+      btn.disabled = true;
+    } else {
+      // Unsigned portion: make clickable
+      btn.onclick = () => choose(index);
+    }
+    container.appendChild(btn);
+  });
+}
+
+function startSort() {
+  // Initialize a random array of 6 numbers (10-99)
+  arr = [];
+  for (let k = 0; k < 6; k++) {
+    arr[k] = Math.floor(Math.random() * 90) + 10;
+  }
+  i = 0;
+  displayArray();
+  document.getElementById('message').textContent = "Find the smallest number in the entire array.";
+}
+
+function choose(index) {
+  if (index < i) return; // ignore clicks on sorted part
+  // Determine the actual smallest element index in the unsorted portion
+  let currentMinIndex = i;
+  for (let j = i + 1; j < arr.length; j++) {
+    if (arr[j] < arr[currentMinIndex]) {
+      currentMinIndex = j;
+    }
+  }
+  if (index !== currentMinIndex) {
+    // Wrong choice
+    document.getElementById('message').textContent = "Not the smallest in the unsorted portion. Try again.";
+  } else {
+    // Correct choice
+    document.getElementById('message').textContent = `Correct! ${arr[index]} is the smallest unsorted element. Swapping it with the element at position ${i}.`;
+    // Swap the chosen element into position i
+    [arr[i], arr[index]] = [arr[index], arr[i]];
+    i++;
+    displayArray();
+    if (i < arr.length - 1) {
+      document.getElementById('message').textContent += " Now find the smallest in the remaining unsorted portion.";
+    } else {
+      document.getElementById('message').textContent = "Array is sorted! Well done 🎉";
+    }
+  }
+}
+
+// Start with an initial array on page load
+startSort();
+</script>
+
+</body>
+</html>

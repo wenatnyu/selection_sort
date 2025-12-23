@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hi, 我是殷闻</title>
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #ffe7d4, #ffe0f7 35%, #d7f3ff 70%, #e2ffe7);
+      --panel: rgba(255, 255, 255, 0.88);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #ff7a59;
+      --accent-2: #4f46e5;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+    .deck {
+      width: 100%;
+      min-height: 100vh;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: hidden;
+      position: relative;
+    }
+    .slides {
+      display: grid;
+      grid-template-columns: repeat(3, 100%);
+      transition: transform 0.6s ease;
+      width: 100%;
+    }
+    .slide {
+      padding: 26px 24px 32px;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .slide.centered {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .slide.centered .actions {
+      justify-content: center;
+    }
+    h1, h2 { margin: 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #111827;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      box-shadow: 0 10px 22px rgba(17, 24, 39, 0.35);
+      font-weight: 700;
+    }
+    .hint { color: var(--muted); font-size: 14px; }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    a.btn, button.btn {
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(120deg, var(--accent), #ffb547);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 15px;
+      box-shadow: 0 12px 26px rgba(255, 122, 89, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    a.btn:hover, button.btn:hover { transform: translateY(-1px); }
+    a.btn:active, button.btn:active { transform: translateY(0); }
+    .page-title {
+      font-size: 26px;
+      line-height: 1.4;
+    }
+    .clipboard {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--accent-2);
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(79, 70, 229, 0.16);
+      cursor: pointer;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .nav {
+      position: absolute;
+      bottom: 18px;
+      right: 18px;
+      display: flex;
+      gap: 8px;
+    }
+    .nav button {
+      background: #111827;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(17, 24, 39, 0.25);
+    }
+    .nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .number-grid {
+      display: grid;
+      width: 100%;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
+      align-content: start;
+    }
+    .num-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 12px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      width: auto;
+      /* Make sure the card takes full width of its grid cell */
+      min-width: 0;
+    }
+    .num-card:hover { transform: translateY(-1px); }
+    .num {
+      font-size: 34px;
+      font-weight: 900;
+      color: #111827;
+    }
+    .num-card.active {
+      border-color: rgba(79, 70, 229, 0.5);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.25);
+    }
+    .num-card.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      border-style: dashed;
+    }
+    .explain {
+      color: #0f172a;
+      font-weight: 600;
+      line-height: 1.4;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      opacity: 0;
+      transform: translateX(16px);
+      transition: opacity 0.25s ease, transform 0.3s ease;
+      min-width: 0;
+    }
+    .explain .sub {
+      color: #475569;
+      font-weight: 500;
+    }
+    .fly {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+    .num-card.active .explain {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .num-card.active .fly {
+      animation: fly 0.4s ease forwards;
+      animation-delay: var(--d, 0s);
+    }
+    @keyframes fly {
+      0% { transform: translateX(14px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--accent-2);
+      font-weight: 800;
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .next-link {
+      text-align: center;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <div class="slides" id="slides">
+      <section class="slide centered">
+        <div class="pill">Page 1 · Intro</div>
+        <h1 class="page-title" id="title-text">你觉得我（殷闻）是一个什么样的人呢？具体点全面点。</h1>
+    
+        <div class="actions">
+          <a class="btn" href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" id="chat-link">Ask Someone Online</a>
+          <button class="clipboard" id="copy-btn">📋 Copy title</button>
+        </div>
+      </section>
+
+      <section class="slide centered">
+        <div class="pill">Page 2 · Chat Snapshot</div>
+        <h2 style="margin-top:4px;">留白</h2>
+        <!-- <div style="flex:1; display:grid; place-items:center; color:var(--muted); border:2px dashed rgba(15,23,42,0.12); border-radius:16px; padding:30px;">
+          <span> </span>
+        </div> -->
+      </section>
+
+      <section class="slide">
+        <div class="pill">Page 3 · 产生随机数 Numbers</div>
+        <div class="number-grid" id="number-grid"></div>
+        <div class="next-link">
+          <a class="btn" href="1intro.html">Start Sorting Slides →</a>
+        </div>
+      </section>
+    </div>
+
+    <div class="nav">
+      <button id="prev">‹ Prev</button>
+      <button id="next">Next ›</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.getElementById("slides");
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    let idx = 0;
+
+    function updateNav() {
+      slides.style.transform = `translateX(-${idx * 100}%)`;
+      prev.disabled = idx === 0;
+      next.disabled = idx === 2;
+    }
+    prev.addEventListener("click", () => { idx = Math.max(0, idx - 1); updateNav(); });
+    next.addEventListener("click", () => { idx = Math.min(2, idx + 1); updateNav(); });
+
+    // Copy title text
+    document.getElementById("copy-btn").addEventListener("click", async () => {
+      const text = document.getElementById("title-text").textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = document.getElementById("copy-btn");
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => (btn.textContent = "📋 Copy title"), 1500);
+      } catch (err) {
+        alert("复制失败，请手动复制");
+      }
+    });
+
+    // Number data
+    const facts = [
+      { n: 9, en: 'There are 9 characters in my name "Wayne Yin"', cn: '我的英文名 Wayne Yin 一共 9 个字符' },
+      { n: 19, en: 'There are 19 strokes in my Chinese name "殷闻"', cn: '我的中文名"殷闻"有 19 画' },
+      { n: 13, en: "I have been teaching for 13 years, including High School and College courses", cn: "我已经教学 13 年，包含高中和大学课程" },
+      { n: 5, en: "I was faculty in 5 US colleges: NYU, Rutgers, Clark, PSU, Syracuse", cn: "我在 5 所美国大学任教过：NYU、Rutgers、Clark、PSU、Syracuse" },
+      { n: 4, en: "I mainly teach 4 courses: Math, Physics, CS, and Badminton", cn: "我主要教 4 门课：数学、物理、计算机（外加羽毛球）" },
+      { n: 10, en: "I entered top 10 nationwide players in both LoL and 三国杀", cn: "我在 英雄联盟 和 三国杀 都曾进入全国前 10" },
+      { n: 27, en: "I fell in love with CS for 27 years (since 1998), though we broke up for a while", cn: "我爱上计算机 27 年了（1998 起），中途短暂分手" },
+      { n: 2, en: "I will release my first album in 2 months", cn: "2 个月后我将发布首张个人专辑" },
+      { n: 0, en: "I got 0 skill points in painting", cn: "我绘画技能点：0" },
+      { n: 8, en: "I have already worked 8 hours today", cn: "我今天已经工作了 8 小时" },
+      { n: 3, en: "I slept less than 3 hours last night", cn: "我昨晚睡了不到 3 小时" },
+    ];
+
+    const grid = document.getElementById("number-grid");
+    let currentIndex = 0;
+    const cards = [];
+    facts.forEach((fact, i) => {
+      const card = document.createElement("div");
+      card.className = "num-card";
+      if (i > 0) card.classList.add("locked");
+      card.style.setProperty("--delay", `${i * 0.06}s`);
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = `#${i + 1}`;
+      const num = document.createElement("div");
+      num.className = "num";
+      num.textContent = fact.n;
+      const explain = document.createElement("div");
+      explain.className = "explain";
+      explain.innerHTML = `<span class="fly" style="--d:0s">${fact.en}</span><span class="fly sub" style="--d:0.12s">${fact.cn}</span>`;
+      card.append(badge, num, explain);
+      card.addEventListener("click", () => {
+        if (card.classList.contains("locked")) return;
+        if (!card.classList.contains("active")) {
+          card.classList.add("active");
+          currentIndex = Math.max(currentIndex, i + 1);
+          if (cards[currentIndex]) {
+            cards[currentIndex].classList.remove("locked");
+          }
+        }
+      });
+      grid.appendChild(card);
+      cards.push(card);
+    });
+
+    updateNav();
+  </script>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Groups</title>
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #ffe7d4, #ffe0f7 35%, #d7f3ff 70%, #e2ffe7);
+      --panel: rgba(255, 255, 255, 0.8);
+      --accent: #ff7a59;
+      --accent-2: #4f46e5;
+      --text: #0f172a;
+      --muted: #64748b;
+      --card-border: rgba(15, 23, 42, 0.12);
+      --chip: linear-gradient(135deg, #fff, #f4f7ff);
+      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+      --shadow-chip: 0 8px 18px rgba(0, 0, 0, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 28px 16px 48px;
+    }
+    .layout {
+      width: min(1400px, 100%);
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 14px 14px 10px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: 26px;
+      letter-spacing: 0.2px;
+    }
+    .tagline {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 12px 0 6px;
+    }
+    textarea, input[type="number"], input[type="text"] {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      padding: 10px 12px;
+      font-size: 15px;
+      background: #fff;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    textarea:focus, input[type="number"]:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.18);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: center;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0 6px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s;
+    }
+    .primary {
+      background: linear-gradient(120deg, var(--accent), #ffb547);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 122, 89, 0.35);
+    }
+    .ghost {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .board {
+      position: relative;
+      min-height: 420px;
+      background: var(--panel);
+      border-radius: 18px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+      overflow: hidden;
+    }
+    .deck {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .groups {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+    }
+    .group-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 12px 10px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+      animation: cardIn 0.5s ease forwards;
+    }
+    .group-title {
+      font-weight: 800;
+      color: var(--accent-2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .group-title::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 8px rgba(79, 70, 229, 0.08);
+      animation: pulse 2.2s infinite;
+    }
+    .question-area {
+      background: #f7f9ff;
+      border: 1px dashed rgba(79, 70, 229, 0.2);
+      border-radius: 12px;
+      padding: 8px 10px 8px;
+      overflow: hidden;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+    .question-block {
+      display: grid;
+      gap: 6px;
+    }
+    .q-title {
+      font-weight: 800;
+      color: #1f2937;
+    }
+    .question-area .answer, .question-area [data-answer] {
+      display: none;
+    }
+    .group-card.reveal .question-area {
+      background: #fff7ed;
+      border-color: rgba(255, 122, 89, 0.5);
+    }
+    .group-card.reveal .question-area .answer,
+    .group-card.reveal .question-area [data-answer] {
+      display: block;
+    }
+    .members {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: stretch;
+    }
+    .member {
+      display: grid;
+      grid-template-rows: auto auto;
+      justify-items: center;
+      gap: 4px;
+      padding: 5px;
+      border-radius: 12px;
+      background: var(--chip);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-chip);
+      min-width: 110px;
+    }
+    @keyframes cardIn {
+      0% { opacity: 0; transform: translateY(12px) scale(0.96); }
+      70% { opacity: 1; transform: translateY(0) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+    }
+    .member-name {
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      font-size: 13px;
+    }
+    .member.pop {
+      animation: popIn 0.35s ease;
+    }
+    .member.glow {
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25), 0 0 16px rgba(79, 70, 229, 0.45);
+      transform: translateY(-1px);
+    }
+    .member.selected {
+      box-shadow: 0 0 0 4px rgba(255, 122, 89, 0.35), 0 10px 22px rgba(0, 0, 0, 0.18);
+      transform: translateY(-2px) scale(1.02);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.82); opacity: 0; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 1; }
+      70% { transform: scale(1.25); opacity: 0.2; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #fff;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 24px rgba(17, 24, 39, 0.35), 0 0 0 4px rgba(255, 122, 89, 0.15);
+      font-weight: 700;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+      transform-origin: center;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .chip .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffb547);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+    }
+    .floating {
+      position: absolute;
+      z-index: 2;
+      will-change: transform;
+      pointer-events: none;
+    }
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .title-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .title-brand img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    }
+    .badge {
+      padding: 6px 9px;
+      border-radius: 12px;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--accent-2);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #0f172a;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: var(--shadow-soft);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: 0.3s ease;
+      z-index: 20;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="panel">
+      <div class="title-bar">
+        <div class="title-brand">
+          <img src="logo.png" alt="Logo" />
+          <div>
+            <h1>Random Groups</h1>
+          </div>
+        </div>
+        <div class="badge">Animated</div>
+      </div>
+
+      <label>Names (comma or new line)</label>
+      <textarea id="names" placeholder="Alice, Bob, Charlie&#10;Dana"></textarea>
+      <div class="hint">Leave empty to generate names</div>
+
+      <label>Headcount & teams</label>
+      <div class="row">
+        <div>
+          <input id="count" type="number" min="1" value="20" />
+          <div class="hint">Used only when generating</div>
+        </div>
+        <div>
+          <input id="groups" type="number" min="1" value="4" />
+          <div class="hint">Number of groups</div>
+        </div>
+      </div>
+
+      <label>Names file (optional)</label>
+      <input id="file" type="file" accept=".txt,.csv" />
+      <div class="hint">Plain text or CSV</div>
+
+      <label>Question set (HTML)</label>
+      <input id="questionFile" type="file" accept=".html,.htm,.txt" />
+      <div class="hint">Blocks with hidden .answer; click card to reveal</div>
+
+      <div class="buttons">
+        <button class="primary" id="randomize">Shuffle now</button>
+        <button class="ghost" id="clear">Clear</button>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="deck" id="deck"></div>
+      <div class="groups" id="groupsContainer"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">New teams ready!</div>
+
+  <script>
+    // Name pools
+    const IB_TERMS = [
+      "algorithm","array","binary search","bitwise","boolean","cache","compiler","database","encryption","hash map","input output","logic gate","object","packet","pointer","protocol","queue","recursion","runtime","stack","variable"
+    ];
+    const BASE_NAMES = ["Nova","Pixel","Echo","Juno","Milo","Zara","Orion","Indigo","Atlas","Skye","Luna","Rex","Mira","Cleo","Aero","Vega","Dash","Nyx","River","Kai","Ivy","Axel","Sage","Piper","Zephyr","Ember","Lark","Finn","Rowan","Quill","Vale","Wren","Jade","Talon","Drift"];
+    const ADJECTIVES = ["Swift","Curious","Bright","Electric","Brave","Cosmic","Neon","Lucky","Quantum","Chill","Sunny","Magnetic","Silent","Flying","Golden","Silver","Crimson","Shadow","Wild","Frost"];
+    const NOUNS = ["Comet","Pixel","Orbit","Rocket","Drift","Cloud","Falcon","Matrix","Cipher","Pulse","Echo","Tempo","Spark","Glider","Circuit","Nova","River","Summit","Harbor","Anchor"];
+
+    const namesInput = document.getElementById("names");
+    const countInput = document.getElementById("count");
+    const groupsInput = document.getElementById("groups");
+    const fileInput = document.getElementById("file");
+    const questionFile = document.getElementById("questionFile");
+    const groupsContainer = document.getElementById("groupsContainer");
+    const deck = document.getElementById("deck");
+    const toast = document.getElementById("toast");
+    let questionBlocks = [];
+    let lastCardRefs = [];
+    const AVATAR_GRADIENTS = [
+      "linear-gradient(135deg, #ff7a59, #ffb547)",
+      "linear-gradient(135deg, #4f46e5, #7c3aed)",
+      "linear-gradient(135deg, #0ea5e9, #06b6d4)",
+      "linear-gradient(135deg, #10b981, #34d399)",
+      "linear-gradient(135deg, #f472b6, #fb7185)",
+      "linear-gradient(135deg, #8b5cf6, #a855f7)",
+      "linear-gradient(135deg, #f59e0b, #f97316)",
+    ];
+
+    function parseNames(text) {
+      return text
+        .replace(/\r/g, "\n")
+        .split(/\n|,/)
+        .map((n) => n.trim())
+        .filter(Boolean);
+    }
+
+    function parseQuestions(html) {
+      const box = document.createElement("div");
+      box.innerHTML = html;
+
+      // Prefer <details> structures (exercise.html)
+      const details = Array.from(box.querySelectorAll("details"));
+      if (details.length) {
+        return details.map((node, idx) => {
+          const wrap = document.createElement("div");
+          wrap.className = "question-block";
+          const title = document.createElement("div");
+          title.className = "q-title";
+          const summary = node.querySelector("summary");
+          title.innerHTML = summary ? summary.innerHTML : `Question ${idx + 1}`;
+          wrap.appendChild(title);
+          const answer = node.querySelector(".answer, [data-answer], .solution");
+          if (answer) {
+            const clone = answer.cloneNode(true);
+            clone.classList.add("answer");
+            wrap.appendChild(clone);
+          }
+          return wrap.outerHTML;
+        });
+      }
+
+      // Fallback: explicit question class
+      const blocks = Array.from(
+        box.querySelectorAll(".question-block, .question, [data-question]")
+      );
+      if (blocks.length) {
+        return blocks.map((el) => {
+          el.classList.add("question-block");
+          el.querySelectorAll(".answer, [data-answer], .solution").forEach((ans) => {
+            ans.classList.add("answer");
+          });
+          return el.outerHTML;
+        });
+      }
+
+      // Last resort: top-level children inside <body> or wrapper
+      const container = box.querySelector("body") || box;
+      const children = Array.from(container.children).filter(
+        (el) => (el.textContent && el.textContent.trim()) || el.querySelector("img") || el.querySelector("video")
+      );
+      return children.map((el) => {
+        el.classList.add("question-block");
+        el.querySelectorAll(".answer, [data-answer], .solution").forEach((ans) => {
+          ans.classList.add("answer");
+        });
+        return el.outerHTML;
+      });
+    }
+
+    function generateNames(n) {
+      const pool = new Set();
+      const result = [];
+      let attempts = 0;
+      const max = Math.max(50, n * 10);
+      while (result.length < n && attempts < max) {
+        const roll = Math.random();
+        let name;
+        if (roll < 0.35) name = randomItem(BASE_NAMES);
+        else if (roll < 0.7) name = `${randomItem(ADJECTIVES)} ${randomItem(BASE_NAMES)}`;
+        else name = `${randomItem(ADJECTIVES)} ${randomItem(NOUNS)}`;
+        if (!pool.has(name)) {
+          pool.add(name);
+          result.push(name);
+        }
+        attempts++;
+      }
+      let suffix = 1;
+      while (result.length < n) {
+        result.push(`${randomItem(BASE_NAMES)} ${suffix++}`);
+      }
+      return result;
+    }
+
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function assignGroups(list, gCount) {
+      const names = [...list];
+      const groups = Array.from({ length: gCount }, () => []);
+      // Fisher-Yates shuffle
+      for (let i = names.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [names[i], names[j]] = [names[j], names[i]];
+      }
+      names.forEach((name, idx) => groups[idx % gCount].push(name));
+      const termPool = shuffle([...IB_TERMS]);
+      groups.forEach((g) => {
+        if (!g.length) g.push(termPool.pop() || randomItem(IB_TERMS));
+      });
+      return groups;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function createMemberElement(name) {
+      const member = document.createElement("div");
+      member.className = "member pop";
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = (name[0] || "?").toUpperCase();
+      avatar.style.background = randomItem(AVATAR_GRADIENTS);
+      const label = document.createElement("div");
+      label.className = "member-name";
+      label.textContent = name;
+      member.append(avatar, label);
+      member.addEventListener("animationend", () => member.classList.remove("pop"), { once: true });
+      return member;
+    }
+
+    function createGroupCards(count) {
+      groupsContainer.innerHTML = "";
+      const refs = Array.from({ length: count }, (_, idx) => {
+        const card = document.createElement("div");
+        card.className = "group-card";
+        card.style.animationDelay = `${idx * 0.1}s`;
+        const title = document.createElement("div");
+        title.className = "group-title";
+        title.textContent = `Group ${idx + 1}`;
+        const question = document.createElement("div");
+        question.className = "question-area";
+        question.textContent = "No question yet.";
+        const members = document.createElement("div");
+        members.className = "members";
+        card.append(title, question, members);
+        question.addEventListener("click", (e) => {
+          e.stopPropagation();
+          card.classList.toggle("reveal");
+        });
+        members.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectRandomMember(members);
+        });
+        groupsContainer.appendChild(card);
+        return { card, question, members };
+      });
+      lastCardRefs = refs;
+      return refs;
+    }
+
+    function applyQuestions(cardRefs) {
+      cardRefs.forEach((ref, idx) => {
+        if (questionBlocks.length === 0) {
+          ref.question.textContent = "No question yet.";
+          return;
+        }
+        const html = questionBlocks[idx % questionBlocks.length];
+        ref.question.innerHTML = html;
+      });
+    }
+
+    function animateDealing(groups, cardRefs) {
+      deck.innerHTML = "";
+      const center = deck.getBoundingClientRect();
+
+      const allNames = groups.flatMap((g, gi) => g.map((name) => ({ name, gi })));
+      let delay = 0;
+      const gap = 110; // ms between deals
+
+      allNames.forEach((entry) => {
+        const chip = document.createElement("div");
+        chip.className = "chip floating";
+        chip.innerHTML = `<span class="dot"></span>${entry.name}`;
+        deck.appendChild(chip);
+        const startX = center.width / 2 + (Math.random() * 60 - 30);
+        const startY = center.height / 2 + (Math.random() * 60 - 30);
+        const startRot = Math.random() * 40 - 20;
+        chip.style.transform = `translate(${startX}px, ${startY}px) scale(0.55) rotate(${startRot}deg)`;
+        chip.style.opacity = "0";
+
+        setTimeout(() => {
+          const target = cardRefs[entry.gi].members;
+          const targetRect = target.getBoundingClientRect();
+          const toX = targetRect.left - center.left + 10 + Math.random() * 30;
+          const toY = targetRect.top - center.top + 10 + Math.random() * 20;
+          const endRot = Math.random() * 20 - 10;
+
+          chip.style.transition = "transform 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.2), opacity 0.35s";
+          requestAnimationFrame(() => {
+            chip.style.opacity = "1";
+            chip.style.transform = `translate(${toX}px, ${toY}px) scale(1) rotate(${endRot}deg)`;
+          });
+
+          chip.addEventListener("transitionend", () => {
+            const memberEl = createMemberElement(entry.name);
+            target.appendChild(memberEl);
+            chip.remove();
+          }, { once: true });
+        }, delay);
+        delay += gap;
+      });
+    }
+
+    function selectRandomMember(container) {
+      const members = Array.from(container.querySelectorAll(".member"));
+      if (!members.length) return;
+      members.forEach((m) => m.classList.remove("selected", "glow"));
+      let idx = -1;
+      let spins = Math.max(8, 12 + Math.floor(Math.random() * 8));
+      const spin = () => {
+        if (idx >= 0) members[idx].classList.remove("glow");
+        idx = (idx + 1) % members.length;
+        members[idx].classList.add("glow");
+        spins -= 1;
+        const delay = Math.max(100, 260 - spins * 8);
+        if (spins <= 0) {
+          members[idx].classList.remove("glow");
+          members[idx].classList.add("selected");
+        } else {
+          setTimeout(spin, delay);
+        }
+      };
+      spin();
+    }
+
+    function performGrouping() {
+      const groupCount = Math.max(1, parseInt(groupsInput.value, 10) || 1);
+      const rawNames = parseNames(namesInput.value);
+      const needed = Math.max(1, parseInt(countInput.value, 10) || 1);
+      const names = rawNames.length ? rawNames : generateNames(needed);
+      const groups = assignGroups(names, groupCount);
+      const cardRefs = createGroupCards(groups.length);
+      applyQuestions(cardRefs);
+      animateDealing(groups, cardRefs);
+      toast.textContent = "New teams ready!";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    document.getElementById("randomize").addEventListener("click", performGrouping);
+    document.getElementById("clear").addEventListener("click", () => {
+      namesInput.value = "";
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        namesInput.value = parseNames(String(event.target?.result || "")).join("\n");
+        toast.textContent = "Loaded from file";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
+      };
+      reader.readAsText(file);
+    });
+
+    questionFile.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const html = String(event.target?.result || "");
+        const parsed = parseQuestions(html);
+        questionBlocks = parsed;
+        toast.textContent = parsed.length ? "Questions loaded" : "No questions found";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
+        if (lastCardRefs.length) {
+          applyQuestions(lastCardRefs);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Simple nav to homework page
+    const footerNav = document.createElement("div");
+    footerNav.style.textAlign = "center";
+    footerNav.style.margin = "18px 0 6px";
+    const link = document.createElement("a");
+    link.href = "4hw.html";
+    link.textContent = "Next: Homework";
+    link.style.display = "inline-block";
+    link.style.padding = "10px 16px";
+    link.style.background = "#3498db";
+    link.style.color = "#fff";
+    link.style.borderRadius = "8px";
+    link.style.textDecoration = "none";
+    footerNav.appendChild(link);
+    document.body.appendChild(footerNav);
+  </script>
+</body>
+</html>

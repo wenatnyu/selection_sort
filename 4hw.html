@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review & Homework: Sorting Algorithms</title>
+  <style>
+    /* 继承之前的风格设置，保持一致性 */
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      margin: 2em auto; 
+      background-color: #f4f6f8;
+      max-width: 900px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 { 
+      color: #2c3e50; 
+      text-align: center; 
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 0.5em;
+    }
+    h2 { 
+      color: #34495e; 
+      margin-top: 1.5em;
+      border-left: 5px solid #3498db;
+      padding-left: 10px;
+    }
+    .container {
+      background-color: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 2em;
+    }
+    .takeaway-box {
+      background-color: #e8f4fd;
+      border: 1px solid #b6e0fe;
+      border-radius: 6px;
+      padding: 1.5em;
+      margin-bottom: 1em;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    .comparison-table th, .comparison-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .comparison-table th {
+      background-color: #3498db;
+      color: white;
+    }
+    .homework-card {
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 1.5em;
+      margin-bottom: 1em;
+      transition: transform 0.2s;
+    }
+    .homework-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .exam-tag {
+      display: inline-block;
+      background-color: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+    code { 
+      background: #f4f4f4; 
+      padding: 0.2em 0.4em; 
+      border-radius: 3px;
+      color: #c7254e;
+      font-family: 'Courier New', monospace;
+    }
+    /* 简单的折叠答案样式 */
+    details {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    summary {
+      font-weight: bold;
+      color: #2980b9;
+      outline: none;
+    }
+    .nav-next {
+      text-align: center;
+      margin: 2em 0;
+    }
+    .nav-next a {
+      display: inline-block;
+      background: #3498db;
+      color: #fff;
+      padding: 0.75em 1.6em;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+    .nav-next a:hover { background: #2d83c1; }
+  </style>
+</head>
+<body>
+
+  <h1>Course Review: Sorting Algorithms</h1>
+
+  <div class="container">
+    <h2>1. Key Takeaways (Summary)</h2>
+    <p>Based on our lesson regarding IB Computer Science B2.4.3:</p>
+    
+    <div class="takeaway-box">
+      <h3>🔍 Selection Sort</h3>
+      <ul>
+        <li><strong>Mechanism:</strong> Repeatedly finds the <strong>minimum</strong> element in the unsorted portion and swaps it with the first unsorted element.</li>
+        <li><strong>Complexity:</strong> Always <strong>O(n²)</strong>. It must scan the unsorted list fully every time, even if the array is already sorted.</li>
+        <li><strong>Swaps:</strong> Efficient in writing memory. Maximum <strong>n-1</strong> swaps total.</li>
+      </ul>
+    </div>
+
+    <div class="takeaway-box">
+      <h3>🫧 Bubble Sort</h3>
+      <ul>
+        <li><strong>Mechanism:</strong> Repeatedly compares <strong>adjacent</strong> elements and swaps them if order is wrong. Largest element "bubbles" to the end.</li>
+        <li><strong>Complexity:</strong> Worst case <strong>O(n²)</strong>. Best case <strong>O(n)</strong> (if optimized with a flag).</li>
+        <li><strong>Swaps:</strong> Can perform many swaps (O(n²) in worst case).</li>
+      </ul>
+    </div>
+
+    <h3>Comparison Cheat Sheet</h3>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Bubble Sort</th>
+          <th>Selection Sort</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Time Complexity (Worst)</strong></td>
+          <td>O(n²)</td>
+          <td>O(n²)</td>
+        </tr>
+        <tr>
+          <td><strong>Time Complexity (Best)</strong></td>
+          <td>O(n) (Already sorted)</td>
+          <td>O(n²) (Always same)</td>
+        </tr>
+        <tr>
+          <td><strong>Number of Swaps</strong></td>
+          <td>High (Many)</td>
+          <td>Low (Max n-1)</td>
+        </tr>
+        <tr>
+          <td><strong>Stability</strong></td>
+          <td>Stable</td>
+          <td>Not Stable</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="container">
+    <h2>2. Homework Assignment</h2>
+    
+    <div class="homework-card">
+      <h3>Task 1: The Manual Trace</h3>
+      <p>Consider the following array: <code>[45, 12, 30, 8, 20]</code></p>
+      <p><strong>Question:</strong> Show the state of the array after the <strong>first 2 passes</strong> of the Selection Sort algorithm.</p>
+      <details>
+        <summary>Click to check solution</summary>
+        <p><strong>Initial:</strong> [45, 12, 30, 8, 20]</p>
+        <ul>
+          <li><strong>Pass 1:</strong> Find min (8). Swap 8 with index 0 (45).<br>
+            Result: <code>[8, 12, 30, 45, 20]</code>
+          </li>
+          <li><strong>Pass 2:</strong> Look at [12, 30, 45, 20]. Find min (12). Swap 12 with index 1 (12). (No change visually, but logically processed).<br>
+            Result: <code>[8, 12, 30, 45, 20]</code>
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="homework-card">
+      <h3>Task 2: Coding Logic</h3>
+      <p>Fill in the blanks for the Selection Sort logic in Pseudocode:</p>
+      <pre>
+LOOP I from 0 to N-2
+   MIN_INDEX = I
+   LOOP J from _______ to _______
+      if ARR[J] < ARR[MIN_INDEX] then
+         MIN_INDEX = _______
+      end if
+   end loop
+   SWAP ARR[I] with ARR[MIN_INDEX]
+end loop
+      </pre>
+      <details>
+        <summary>Click to check solution</summary>
+        <ul>
+          <li>Loop J from: <strong>I + 1</strong></li>
+          <li>To: <strong>N - 1</strong></li>
+          <li>MIN_INDEX = <strong>J</strong></li>
+        </ul>
+      </details>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>3. IBDP Computer Science Exam Questions</h2>
+    <p><em>Practice with questions modeled after real IB Paper 1 scenarios.</em></p>
+
+    <div class="homework-card">
+      <span class="exam-tag">May 2019 / SL Paper 1 / Q10</span>
+      <h3>Question 1 (Tracing)</h3>
+      <p>An array contains the following integer elements:</p>
+      <p style="text-align:center; font-family:monospace; font-size:1.2em;">[18, 5, 9, 12, 3]</p>
+      <p>Apply the <strong>selection sort</strong> algorithm to sort the array in ascending order. Show the contents of the array after each swap operation.</p>
+      
+      <details>
+        <summary>View Markscheme / Answer</summary>
+        <p><strong>Initial:</strong> [18, 5, 9, 12, 3]</p>
+        <ol>
+          <li>Find min (3). Swap with 18. <br>Result: <code>[3, 5, 9, 12, 18]</code></li>
+          <li>Find min in [5, 9, 12, 18] -> (5). Swap with 5. <br>Result: <code>[3, 5, 9, 12, 18]</code> (No change)</li>
+          <li>Find min in [9, 12, 18] -> (9). Swap with 9. <br>Result: <code>[3, 5, 9, 12, 18]</code> (No change)</li>
+          <li>Find min in [12, 18] -> (12). Swap with 12. <br>Result: <code>[3, 5, 9, 12, 18]</code> (No change)</li>
+        </ol>
+        <p><em>Note: IB marks are usually awarded for showing the correct state after specific passes or the final sorted array with evidence of the method used.</em></p>
+      </details>
+    </div>
+
+    <div class="homework-card">
+      <span class="exam-tag">Nov 2017 / SL Paper 1 / Q6</span>
+      <h3>Question 2 (Complexity & Comparison)</h3>
+      <p><strong>(a)</strong> State the time complexity of the bubble sort algorithm in the worst case. [1 mark]</p>
+      <p><strong>(b)</strong> Identify <strong>one</strong> advantage of using selection sort over bubble sort. [1 mark]</p>
+      
+      <details>
+        <summary>View Markscheme / Answer</summary>
+        <p><strong>(a) Answer:</strong> O(n²) or Quadratic.</p>
+        <p><strong>(b) Answer:</strong></p>
+        <ul>
+          <li>Selection sort performs fewer swap operations than bubble sort (maximum n-1 swaps).</li>
+          <li>Selection sort is generally faster for writing to memory if write operations are expensive.</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+
+  <div class="nav-next">
+    <a href="5post.html">Go to Post-Class Reflection →</a>
+  </div>
+
+</body>
+</html>

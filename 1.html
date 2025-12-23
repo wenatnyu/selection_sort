@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sorting Algorithms: Bubble Sort & Selection Sort</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 1em; 
+      background-color: #f9f9f9;
+    }
+    .slide {
+      background-color: white;
+      margin: 1em auto;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 900px;
+      width: 90%;
+    }
+    h1 { 
+      color: #2c3e50; 
+      text-align: center;
+      margin-top: 0.5em;
+    }
+    h2 { 
+      color: #34495e; 
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 0.3em;
+    }
+    h3 {
+      color: #2980b9;
+      margin-top: 1.5em;
+    }
+    ul, ol { 
+      margin: 0.5em 0 0.5em 1.2em; 
+    }
+    li { 
+      margin-bottom: 0.5em; 
+    }
+    code { 
+      background: #f4f4f4; 
+      padding: 0.2em 0.4em; 
+      border-radius: 3px;
+    }
+    pre { 
+      background: #f8f8f8; 
+      padding: 0.8em; 
+      border-radius: 4px;
+      overflow-x: auto; 
+      border-left: 4px solid #3498db;
+    }
+    .code-block {
+      background-color: #2d3748;
+      color: #e2e8f0;
+      padding: 1em;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 0.5em 0;
+    }
+    .code-comment { color: #80e880; }
+    .code-keyword { color: #ff79c6; }
+    .code-function { color: #50fa7b; }
+    .code-variable { color: #f8f8f2; }
+    .inline-code {
+      font-family: 'Courier New', monospace;
+      background-color: #f1f2f6;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    .code-container {
+      display: flex;
+      gap: 15px;
+      margin: 1em 0;
+    }
+    .code-left {
+      flex: 1;
+      min-width: 0; /* Allows flex item to shrink below content size */
+    }
+    .code-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      min-width: 0; /* Allows flex item to shrink below content size */
+    }
+    .code-block {
+      background-color: #ffffff;
+      color: #2d3748;
+      padding: 1em;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 0.5em 0;
+      position: relative;
+      border: 1px solid #e2e8f0;
+    }
+    .line-numbers {
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-color: #edf2f7;
+      color: #718096;
+      padding: 1em 0.5em;
+      text-align: right;
+      border-radius: 6px 0 0 6px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+    }
+    .code-content {
+      margin-left: 2.5em;
+      white-space: pre;
+      line-height: 1.5;
+    }
+    .code-comment { color: #38a169; }
+    .code-keyword { color: #3182ce; }
+    .code-function { color: #d69e2e; }
+    .code-variable { color: #2d3748; }
+    .code-punctuation { color: #2d3748; }
+    .code-operator { color: #e53e3e; }
+    .highlight {
+      background-color: #fffacd;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+    }
+    .complexity {
+      background-color: #e8f4fd;
+      padding: 1em;
+      border-radius: 5px;
+      border-left: 4px solid #3498db;
+    }
+    .comparison {
+      background-color: #f0f7e5;
+      padding: 1em;
+      border-radius: 5px;
+      border-left: 4px solid #27ae60;
+    }
+    .center {
+      text-align: center;
+    }
+    .step {
+      margin: 0.8em 0;
+      padding: 0.5em;
+      background-color: #f8f9fa;
+      border-left: 3px solid #3498db;
+    }
+    .example {
+      background-color: #fef9e7;
+      padding: 1em;
+      border-radius: 5px;
+      border-left: 4px solid #f39c12;
+    }
+    .slide-nav {
+      text-align: center;
+      margin: 1em 0;
+    }
+    .slide-nav button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.5em 1em;
+      margin: 0 0.2em;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .slide-nav button:hover {
+      background-color: #2980b9;
+    }
+    .slide-nav button.active {
+      background-color: #e74c3c;
+    }
+    .slide-container {
+      position: relative;
+    }
+    .slide-indicator {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-container">
+  <script>
+    // Add slide navigation functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const slides = document.querySelectorAll('.slide');
+      let currentSlide = 0;
+      
+      // Create navigation controls
+      const navContainer = document.createElement('div');
+      navContainer.className = 'slide-nav';
+      
+      const prevBtn = document.createElement('button');
+      prevBtn.innerHTML = '&#8249; Previous';
+      prevBtn.onclick = function() {
+        if (currentSlide > 0) {
+          slides[currentSlide].style.display = 'none';
+          currentSlide--;
+          slides[currentSlide].style.display = 'block';
+          updateSlideIndicator();
+        }
+      };
+      
+      const nextBtn = document.createElement('button');
+      nextBtn.innerHTML = 'Next &#8250;';
+      nextBtn.onclick = function() {
+        if (currentSlide < slides.length - 1) {
+          slides[currentSlide].style.display = 'none';
+          currentSlide++;
+          slides[currentSlide].style.display = 'block';
+          updateSlideIndicator();
+        }
+      };
+      
+      navContainer.appendChild(prevBtn);
+      navContainer.appendChild(nextBtn);
+      
+      // Add navigation after the body opening
+      document.body.insertBefore(navContainer, document.body.firstChild);
+      
+      // Create slide indicator
+      const indicator = document.createElement('div');
+      indicator.className = 'slide-indicator';
+      indicator.textContent = `Slide 1 of ${slides.length}`;
+      document.body.insertBefore(indicator, navContainer);
+      
+      // Hide all slides except the first
+      for (let i = 1; i < slides.length; i++) {
+        slides[i].style.display = 'none';
+      }
+      
+      function updateSlideIndicator() {
+        indicator.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+        
+        // Update button states
+        prevBtn.disabled = (currentSlide === 0);
+        nextBtn.disabled = (currentSlide === slides.length - 1);
+        
+        // Style buttons based on state
+        prevBtn.style.opacity = (currentSlide === 0) ? '0.5' : '1';
+        nextBtn.style.opacity = (currentSlide === slides.length - 1) ? '0.5' : '1';
+      }
+      
+      updateSlideIndicator();
+    });
+  </script>
+</div>
+
+<div class="slide">
+  <h1>Sorting Algorithms: Bubble Sort & Selection Sort</h1>
+  <p class="center"><strong>IB Computer Science B2.4.3:</strong> Construct and trace algorithms for bubble sort and selection sort, and evaluate their time and space complexities.</p>
+  <p class="center">In this lesson, we'll briefly recap <em>Bubble Sort</em> and then focus on <em>Selection Sort</em>, a simple sorting algorithm that selects the smallest remaining element and places it in order on each pass.</p>
+</div>
+
+<div class="slide">
+  <h2>Bubble Sort – Quick Recap</h2>
+  <h3>Idea:</h3>
+  <p>Repeatedly compare adjacent elements and swap them if they are in the wrong order. With each pass, the largest unsorted element "bubbles" to its correct position at the end of the list.</p>
+  
+  <h3>Example:</h3>
+  <div class="example">
+    <p>Given <code>[5, 3, 8, 4]</code>:</p>
+    <ul>
+      <li>Swap 5↔3 → <code>[3, 5, 8, 4]</code></li>
+      <li>Compare 5↔8 (no swap)</li>
+      <li>Swap 8↔4 → <code>[3, 5, 4, 8]</code></li>
+      <li>Repeat passes until sorted <code>[3, 4, 5, 8]</code></li>
+    </ul>
+  </div>
+  
+  <h3>Complexity:</h3>
+  <div class="complexity">
+    <ul>
+      <li><strong>Worst-case time:</strong> O(<em>n</em><sup>2</sup>)</li>
+      <li><strong>Best-case time:</strong> O(<em>n</em>) - when list is already sorted</li>
+      <li><strong>Space:</strong> O(1) - in-place sorting</li>
+    </ul>
+  </div>
+  
+  <h3>Properties:</h3>
+  <ul>
+    <li><strong>Stable:</strong> Yes - equal elements retain their relative order</li>
+    <li><strong>In-place:</strong> Yes - uses constant extra space</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h2>Selection Sort – Introduction</h2>
+  <h3>Idea:</h3>
+  <p>Divide the list into a sorted portion (initially empty) and an unsorted portion. Repeatedly find the smallest element in the unsorted part and swap it with the first unsorted element, expanding the sorted portion by one.</p>
+  
+  <h3>Process:</h3>
+  <ol>
+    <li>Find the smallest element in the unsorted portion</li>
+    <li>Swap it with the first element of the unsorted portion</li>
+    <li>Move the boundary between sorted and unsorted portions</li>
+    <li>Repeat until all elements are sorted</li>
+  </ol>
+  
+  <h3>Key Difference from Bubble Sort:</h3>
+  <p>Instead of swapping repeatedly like bubble sort, selection sort makes at most one swap per pass (placing the minimum element in position).</p>
+</div>
+
+<div class="slide">
+  <h2>Interactive Selection Sort Practice</h2>
+  <p>Instructions: Below is an array of random numbers. Your goal is to sort it using the selection sort approach. In each round, <strong>click the smallest element</strong> in the <em>unsorted</em> portion of the array. The chosen element will be swapped into its correct sorted position. Gray buttons indicate the portion that is already sorted and fixed in place. Continue until the array is completely sorted! You can press "New Array" to restart with a new random list.</p>
+
+  <div id="array"></div>
+  <p id="message"></p>
+  <button onclick="startSort()" style="font-size: 1em; margin: 0.5em; padding: 0.5em 1em; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 4px;">New Array</button>
+
+  <script>
+  let arr = [];
+  let i = 0;
+
+  function displayArray() {
+    const container = document.getElementById('array');
+    container.innerHTML = "";
+    arr.forEach((val, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = val;
+      btn.style.fontSize = "1em";
+      btn.style.margin = "0.2em";
+      btn.style.padding = "0.5em 1em";
+      btn.style.cursor = "pointer";
+      
+      if (index < i) {
+        // Already sorted portion
+        btn.disabled = true;
+        btn.style.backgroundColor = "#dddddd";
+        btn.style.color = "#888888";
+        btn.style.cursor = "default";
+      } else {
+        // Unsigned portion: make clickable
+        btn.onclick = () => choose(index);
+        btn.style.backgroundColor = "#3498db";
+        btn.style.color = "white";
+      }
+      container.appendChild(btn);
+    });
+  }
+
+  function startSort() {
+    // Initialize a random array of 6 numbers (10-99)
+    arr = [];
+    for (let k = 0; k < 6; k++) {
+      arr[k] = Math.floor(Math.random() * 90) + 10;
+    }
+    i = 0;
+    displayArray();
+    document.getElementById('message').textContent = "Find the smallest number in the entire array.";
+  }
+
+  function choose(index) {
+    if (index < i) return; // ignore clicks on sorted part
+    // Determine the actual smallest element index in the unsorted portion
+    let currentMinIndex = i;
+    for (let j = i + 1; j < arr.length; j++) {
+      if (arr[j] < arr[currentMinIndex]) {
+        currentMinIndex = j;
+      }
+    }
+    if (index !== currentMinIndex) {
+      // Wrong choice
+      document.getElementById('message').textContent = "Not the smallest in the unsorted portion. Try again.";
+    } else {
+      // Correct choice
+      document.getElementById('message').textContent = `Correct! ${arr[index]} is the smallest unsorted element. Swapping it with the element at position ${i}.`;
+      // Swap the chosen element into position i
+      [arr[i], arr[index]] = [arr[index], arr[i]];
+      i++;
+      displayArray();
+      if (i < arr.length - 1) {
+        document.getElementById('message').textContent += " Now find the smallest in the remaining unsorted portion.";
+      } else {
+        document.getElementById('message').textContent = "Array is sorted! Well done 🎉";
+      }
+    }
+  }
+
+  // Start with an initial array on page load
+  startSort();
+  </script>
+</div>
+
+<div class="slide">
+  <h2>Selection Sort Step-by-Step Example</h2>
+  <p class="center">Let's sort the array <code>[64, 25, 12, 22, 11]</code> using Selection Sort:</p>
+  
+  <div class="step">
+    <strong>Initial array:</strong> [64, 25, 12, 22, 11]<br>
+    <strong>Sorted portion:</strong> [] | <strong>Unsorted portion:</strong> [64, 25, 12, 22, 11]
+  </div>
+  
+  <div class="step">
+    <strong>Pass 1:</strong> Smallest in unsorted portion is 11. Swap 11 with first element (64).<br>
+    Array becomes [<span class="highlight">11</span>, 25, 12, 22, 64]<br>
+    <strong>Sorted portion:</strong> [11] | <strong>Unsorted portion:</strong> [25, 12, 22, 64]
+  </div>
+  
+  <div class="step">
+    <strong>Pass 2:</strong> Find smallest in [25, 12, 22, 64] → 12. Swap with element at index 1.<br>
+    Array becomes [11, <span class="highlight">12</span>, 25, 22, 64]<br>
+    <strong>Sorted portion:</strong> [11, 12] | <strong>Unsorted portion:</strong> [25, 22, 64]
+  </div>
+  
+  <div class="step">
+    <strong>Pass 3:</strong> Find smallest in [25, 22, 64] → 22. Swap with element at index 2.<br>
+    Array becomes [11, 12, <span class="highlight">22</span>, 25, 64]<br>
+    <strong>Sorted portion:</strong> [11, 12, 22] | <strong>Unsorted portion:</strong> [25, 64]
+  </div>
+  
+  <div class="step">
+    <strong>Pass 4:</strong> Find smallest in [25, 64] → 25. Swap with element at index 3 (no change).<br>
+    Array becomes [11, 12, 22, <span class="highlight">25</span>, 64]<br>
+    <strong>Sorted portion:</strong> [11, 12, 22, 25] | <strong>Unsorted portion:</strong> [64]
+  </div>
+  
+  <div class="step">
+    <strong>Result:</strong> Array is sorted: [11, 12, 22, 25, 64]<br>
+    Selection sort made 4 passes and 4 swaps to sort 5 elements.
+  </div>
+  
+  <p class="center"><img src="https://cdn.emre.me/sorting/selection_sort.gif" alt="Animation of selection sort algorithm" style="max-width: 100%; height: auto;"></p>
+  <p class="center"><em>Figure:</em> Selection sort in action – at each step, the smallest remaining element is selected and swapped into place.</p>
+</div>
+
+<div class="slide">
+  <h2>Selection Sort Implementation</h2>
+  
+  <div class="code-container">
+    <div class="code-left">
+      <h3>Pseudocode</h3>
+      <div class="code-block">
+        <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+        <div class="code-content">// Assume array A with length n
+for i from <span class="code-variable">0</span> to n-<span class="code-variable">2</span>:
+    minIndex = i
+    <span class="code-comment">// Find index of minimum element in A[i...n-1]</span>
+    for j from i+<span class="code-variable">1</span> to n-<span class="code-variable">1</span>:
+        <span class="code-keyword">if</span> A[j] &lt; A[minIndex]:
+            minIndex = j
+    <span class="code-comment">// Swap the found minimum with A[i]</span>
+    swap A[i] and A[minIndex]</div>
+      </div>
+      
+      <p>This algorithm runs <span class="inline-code">n-1</span> iterations of the outer loop. On each iteration <span class="inline-code">i</span>, it finds the min of the remaining unsorted part and swaps it with position <span class="inline-code">i</span>.</p>
+    </div>
+    
+    <div class="code-right">
+      <div>
+        <h3>Java Implementation</h3>
+        <div class="code-block">
+          <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div>
+          <div class="code-content"><span class="code-keyword">public static void</span> <span class="code-function">selectionSort</span>(<span class="code-keyword">int</span>[] arr) {
+    <span class="code-keyword">int</span> n = arr.length;
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-variable">0</span>; i &lt; n - <span class="code-variable">1</span>; i++) {
+        <span class="code-keyword">int</span> minIndex = i;
+        <span class="code-comment">// find smallest element in arr[i..n-1]</span>
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> j = i + <span class="code-variable">1</span>; j &lt; n; j++) {
+            <span class="code-keyword">if</span> (arr[j] &lt; arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        <span class="code-comment">// swap arr[i] and arr[minIndex]</span>
+        <span class="code-keyword">int</span> temp = arr[i];
+        arr[i] = arr[minIndex];
+        arr[minIndex] = temp;
+    }
+}</div>
+        </div>
+        
+        <p><small>Code explanation: The outer loop picks the position <span class="inline-code">i</span> for the next smallest element. The inner loop finds the index of the minimum element from <span class="inline-code">i</span> to end. Then we swap that minimum into position <span class="inline-code">i</span>.</small></p>
+      </div>
+      
+      <div>
+        <h3>Python Implementation</h3>
+        <div class="code-block">
+          <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+          <div class="code-content"><span class="code-keyword">def</span> <span class="code-function">selection_sort</span>(arr):
+    n = <span class="code-function">len</span>(arr)
+    <span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-function">range</span>(n - <span class="code-variable">1</span>):
+        min_index = i
+        <span class="code-keyword">for</span> j <span class="code-keyword">in</span> <span class="code-function">range</span>(i + <span class="code-variable">1</span>, n):
+            <span class="code-keyword">if</span> arr[j] &lt; arr[min_index]:
+                min_index = j
+        <span class="code-comment"># swap the found minimum with arr[i]</span>
+        arr[i], arr[min_index] = arr[min_index], arr[i]</div>
+        </div>
+        
+        <p><small>This Python implementation follows the same logic. Note that Python allows swapping in one line. After these loops, the list <span class="inline-code">arr</span> will be sorted in place.</small></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>Time and Space Complexity</h2>
+  <div class="complexity">
+    <h3>Time Complexity:</h3>
+    <ul>
+      <li>O(<em>n</em><sup>2</sup>) in all cases (best, average, worst)</li>
+      <li>Selection sort always scans the unsorted portion to find a min, even if the list is already sorted</li>
+      <li>Performs about <code>n(n-1)/2</code> comparisons (roughly ½ * n^2)</li>
+      <li>For example, 100 items would require on the order of 10,000 comparisons</li>
+    </ul>
+  </div>
+  
+  <div class="complexity">
+    <h3>Space Complexity:</h3>
+    <ul>
+      <li>O(1) auxiliary space - in-place sorting</li>
+      <li>The sort is done by swapping within the array, using only constant extra memory</li>
+    </ul>
+  </div>
+  
+  <div class="complexity">
+    <h3>Stability:</h3>
+    <ul>
+      <li>Selection sort is <strong>not stable</strong> – equal elements might not retain their original order</li>
+      <li>(Bubble sort, by contrast, is stable)</li>
+      <li>In practice, stability only matters if the order of equal items carries meaning</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>Bubble vs Selection – Which is Better?</h2>
+  <div class="comparison">
+    <h3>Similarities:</h3>
+    <ul>
+      <li>Both have O(<em>n</em><sup>2</sup>) worst-case time complexity</li>
+      <li>Neither is efficient for large data sets</li>
+      <li>Great for understanding basic algorithmic thinking</li>
+    </ul>
+  </div>
+  
+  <div class="comparison">
+    <h3>Differences:</h3>
+    <ul>
+      <li><strong>Bubble Sort:</strong> Can terminate early if list becomes sorted (best-case O(n))</li>
+      <li><strong>Selection Sort:</strong> Always runs through all passes regardless of input</li>
+      <li><strong>Swaps:</strong> Selection sort performs fewer swaps (at most n-1) vs bubble sort's many swaps</li>
+      <li><strong>Optimization:</strong> Bubble sort easier to optimize for early completion</li>
+      <li><strong>Predictability:</strong> Selection sort has deterministic running time</li>
+    </ul>
+  </div>
+  
+  <div class="comparison">
+    <h3>Real-World Usage:</h3>
+    <p>Neither is efficient for large datasets. In practice, more advanced algorithms (merge sort, quick sort, etc., which run in O(n log n) time) are used for large arrays. But selection and bubble sorts are great for educational purposes and very small lists.</p>
+  </div>
+</div>
+
+</body>
+</html>

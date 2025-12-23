@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBDP CS: Selection Sort Exercises</title>
+    <style>
+        /* Simple, clean styling for readability */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        /* Style for the question container */
+        details {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        /* Style for the click area (The Question) */
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1em;
+            outline: none;
+        }
+        summary:hover {
+            color: #0056b3;
+        }
+        /* Style for the answer section */
+        .answer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            color: #006600; /* Green color for answers */
+        }
+        .code {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #eee;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Selection Sort: In-class Exercise</h1>
+    <p><em>Click on any question below to reveal the answer.</em></p>
+
+    <details>
+        <summary>Q1. What is the Time Complexity of Selection Sort?</summary>
+        <div class="answer">
+            <p><strong>Answer: O(n<sup>2</sup>)</strong></p>
+            <p><strong>Explanation:</strong> Selection Sort requires two nested loops. The outer loop iterates <em>n</em> times, and the inner loop iterates to find the minimum element in the remaining unsorted sub-array. This occurs regardless of the initial order of elements.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Q2. Trace: Array [40, 10, 30, 20]. Show the array after the 2nd pass.</summary>
+        <div class="answer">
+            <p><strong>Answer: [10, 20, 30, 40]</strong></p>
+            <p><strong>Step-by-Step:</strong></p>
+            <ul>
+                <li>Initial: [40, 10, 30, 20]</li>
+                <li><strong>Pass 1:</strong> Identify min (10), swap with index 0. Result: [<strong>10</strong>, 40, 30, 20]</li>
+                <li><strong>Pass 2:</strong> Identify min in remaining [40, 30, 20] which is (20), swap with index 1. Result: [<strong>10, 20</strong>, 30, 40]</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>Q3. Selection Sort vs. Bubble Sort: Which performs fewer swaps?</summary>
+        <div class="answer">
+            <p><strong>Answer: Selection Sort</strong></p>
+            <p><strong>Explanation:</strong> Selection Sort makes a maximum of <strong>n-1</strong> swaps (one swap per pass). Bubble Sort, in the worst case, swaps adjacent elements continuously, potentially performing O(n<sup>2</sup>) swaps.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Q4. Fill in the blank: The inner loop of Selection Sort starts from _____.</summary>
+        <div class="answer">
+            <p><strong>Answer: current_index + 1</strong></p>
+            <p><strong>Explanation:</strong> If the outer loop variable is <code>i</code> (representing the first element of the unsorted sub-array), the inner loop must search for the minimum value starting from <code>i + 1</code> up to the end of the array.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Q5. True or False: Selection Sort is faster if the array is already sorted.</summary>
+        <div class="answer">
+            <p><strong>Answer: False</strong></p>
+            <p><strong>Explanation:</strong> This is a key characteristic of Selection Sort. It performs the same number of comparisons (O(n<sup>2</sup>)) regardless of whether the array is sorted, reverse-sorted, or random. It does not "know" the array is sorted until it checks every element.</p>
+        </div>
+    </details>
+
+    <p style="text-align:center; margin: 2em 0 1em;">
+      <a href="3index.html" style="display:inline-block; background:#3498db; color:#fff; padding:0.75em 1.5em; border-radius:6px; text-decoration:none;">Next: Grouping Tool</a>
+    </p>
+
+</body>
+</html>
