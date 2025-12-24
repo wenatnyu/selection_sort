@@ -122,7 +122,7 @@
       box-shadow: 0 10px 20px rgba(17, 24, 39, 0.25);
     }
     .nav button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .number-grid {
+  .number-grid {
       display: grid;
       width: 100%;
       grid-template-columns: 1fr;
@@ -132,7 +132,7 @@
       max-height: calc(100vh - 200px);
       align-content: start;
     }
-    .num-card {
+  .num-card {
       background: #fff;
       border-radius: 14px;
       padding: 14px 12px;
@@ -148,6 +148,12 @@
       width: auto;
       /* Make sure the card takes full width of its grid cell */
       min-width: 0;
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+    .num-card.enter {
+      animation: popIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: var(--stagger, 0s);
     }
     .num-card:hover { transform: translateY(-1px); }
     .num {
@@ -194,9 +200,14 @@
       animation: fly 0.4s ease forwards;
       animation-delay: var(--d, 0s);
     }
-    @keyframes fly {
+  @keyframes fly {
       0% { transform: translateX(14px); opacity: 0; }
       100% { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(18px) scale(0.94); }
+      60% { opacity: 1; transform: translateY(-4px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
     .badge {
       position: absolute;
@@ -209,9 +220,34 @@
       border-radius: 10px;
       font-size: 12px;
     }
-    .next-link {
+  .next-link {
       text-align: center;
       margin-top: 16px;
+    }
+    .sort-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn.secondary {
+      background: linear-gradient(120deg, var(--accent-2), #6ee7ff);
+      box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28);
+    }
+    .btn.secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .pulse {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28); transform: translateY(-1px); }
+      50% { box-shadow: 0 18px 36px rgba(79, 70, 229, 0.32); transform: translateY(-3px); }
+      100% { box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28); transform: translateY(-1px); }
     }
   </style>
 </head>
@@ -239,6 +275,10 @@
       <section class="slide">
         <div class="pill">Page 3 · 产生随机数 Numbers</div>
         <div class="number-grid" id="number-grid"></div>
+        <div class="sort-actions">
+          <button class="btn secondary" id="sort-btn" disabled>🔀 数字从大到小排序</button>
+          <span class="hint" id="sort-hint">点击每张卡片依次解锁，解锁完可一键排序</span>
+        </div>
         <div class="next-link">
           <a class="btn" href="1intro.html">Start Sorting Slides →</a>
         </div>
@@ -261,6 +301,7 @@
       slides.style.transform = `translateX(-${idx * 100}%)`;
       prev.disabled = idx === 0;
       next.disabled = idx === 2;
+      if (idx === 2) playEntranceOnce();
     }
     prev.addEventListener("click", () => { idx = Math.max(0, idx - 1); updateNav(); });
     next.addEventListener("click", () => { idx = Math.min(2, idx + 1); updateNav(); });
@@ -284,6 +325,7 @@
       { n: 19, en: 'There are 19 strokes in my Chinese name "殷闻"', cn: '我的中文名"殷闻"有 19 画' },
       { n: 13, en: "I have been teaching for 13 years, including High School and College courses", cn: "我已经教学 13 年，包含高中和大学课程" },
       { n: 5, en: "I was faculty in 5 US colleges: NYU, Rutgers, Clark, PSU, Syracuse", cn: "我在 5 所美国大学任教过：NYU、Rutgers、Clark、PSU、Syracuse" },
+      { n: 30, en: "I have visited more than 30 US schools", cn: "我带团参访过 30 多所美国学校" },
       { n: 4, en: "I mainly teach 4 courses: Math, Physics, CS, and Badminton", cn: "我主要教 4 门课：数学、物理、计算机（外加羽毛球）" },
       { n: 10, en: "I entered top 10 nationwide players in both LoL and 三国杀", cn: "我在 英雄联盟 和 三国杀 都曾进入全国前 10" },
       { n: 27, en: "I fell in love with CS for 27 years (since 1998), though we broke up for a while", cn: "我爱上计算机 27 年了（1998 起），中途短暂分手" },
@@ -294,13 +336,59 @@
     ];
 
     const grid = document.getElementById("number-grid");
+    const sortBtn = document.getElementById("sort-btn");
+    const sortHint = document.getElementById("sort-hint");
     let currentIndex = 0;
     const cards = [];
+    let entrancePlayed = false;
+
+    function checkAllActive() {
+      const allActive = cards.length > 0 && cards.every((c) => c.classList.contains("active"));
+      sortBtn.disabled = !allActive;
+      if (allActive) {
+        sortBtn.classList.add("pulse");
+        sortHint.textContent = "全部展示完毕！点击按钮按数字从大到小排列";
+      }
+    }
+
+    function animateSort() {
+      const before = new Map();
+      cards.forEach((card) => before.set(card, card.getBoundingClientRect()));
+
+      const sorted = [...cards].sort((a, b) => {
+        const na = Number(a.querySelector(".num").textContent);
+        const nb = Number(b.querySelector(".num").textContent);
+        return nb - na;
+      });
+
+      sorted.forEach((card) => grid.appendChild(card));
+
+      sorted.forEach((card) => {
+        const first = before.get(card);
+        const last = card.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        card.animate(
+          [
+            { transform: `translate(${dx}px, ${dy}px)` },
+            { transform: "translate(0, 0)" }
+          ],
+          { duration: 650, easing: "ease-in-out" }
+        );
+      });
+
+      sortBtn.classList.remove("pulse");
+      sortHint.textContent = "已按数字从大到小排序";
+    }
+
+    sortBtn.addEventListener("click", animateSort);
+
     facts.forEach((fact, i) => {
       const card = document.createElement("div");
       card.className = "num-card";
       if (i > 0) card.classList.add("locked");
       card.style.setProperty("--delay", `${i * 0.06}s`);
+      card.style.setProperty("--stagger", `${i * 0.12}s`);
       const badge = document.createElement("div");
       badge.className = "badge";
       badge.textContent = `#${i + 1}`;
@@ -319,11 +407,24 @@
           if (cards[currentIndex]) {
             cards[currentIndex].classList.remove("locked");
           }
+          checkAllActive();
         }
       });
       grid.appendChild(card);
       cards.push(card);
     });
+
+    function playEntranceOnce() {
+      if (entrancePlayed) return;
+      entrancePlayed = true;
+      requestAnimationFrame(() => {
+        cards.forEach((card, i) => {
+          setTimeout(() => card.classList.add("enter"), i * 120);
+        });
+      });
+    }
+
+    checkAllActive();
 
     updateNav();
   </script>
