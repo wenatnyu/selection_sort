@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runtime Complexity Demo: Linear vs Quadratic</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --btn-blue: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin-top: 30px; font-weight: 300; }
+        .subtitle { color: #888; margin-bottom: 30px; }
+
+        /* Control Panel */
+        .controls {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background: #333;
+            color: white;
+            font-size: 1.1rem;
+            width: 150px;
+            text-align: center;
+        }
+
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; justify-content: center; }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.95); }
+        .btn-small { background-color: #555; color: white; }
+        .btn-run { background-color: var(--btn-blue); color: white; padding: 10px 30px; font-size: 1.2rem; }
+
+        /* Simulation Container */
+        .sim-container {
+            display: flex;
+            gap: 40px;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .card {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border-top: 5px solid #555;
+            transition: all 0.3s;
+        }
+
+        .card.linear { border-color: var(--accent-green); }
+        .card.quadratic { border-color: var(--accent-red); }
+
+        .code-snippet {
+            background: #111;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            color: #ccc;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .status-box {
+            margin-top: 20px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid var(--btn-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Status Text */
+        .status-text { margin-top: 10px; font-weight: bold; }
+        .success { color: var(--accent-green); }
+        .error { color: var(--accent-red); }
+
+        /* CRASH OVERLAY STYLES */
+        .crash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none; /* Hidden by default */
+        }
+
+        .crash-face { font-size: 4rem; margin-bottom: 10px; color: #555; }
+        .crash-title { font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .crash-desc { font-size: 0.9rem; color: #666; text-align: center; padding: 0 20px; }
+        .crash-btn {
+            margin-top: 20px;
+            background: #1a73e8;
+            color: white;
+            border: 1px solid #1a73e8;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        /* Shake Animation for Crash */
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Loop Analysis Simulation</h1>
+    <div class="subtitle">Comparing O(N) vs O(N^2) Performance</div>
+
+    <div class="controls">
+        <label>Input Size (N): </label>
+        <input type="number" id="inputN" value="10">
+        
+        <div class="btn-group">
+            <button class="btn-small" onclick="setN(10)">Set N = 10</button>
+            <button class="btn-small" onclick="setN(1000000)" style="border: 1px solid var(--accent-red); color: var(--accent-red);">Set N = 1,000,000</button>
+        </div>
+        <br>
+        <button class="btn-run" onclick="runSimulation()">RUN TEST</button>
+    </div>
+
+    <div class="sim-container">
+        
+        <div class="card linear" id="cardLinear">
+            <h2>Linear Loop</h2>
+            <div style="color:var(--accent-green); font-weight:bold;">O(N)</div>
+            <div class="code-snippet">
+for(int i=0; i&lt;n; i++) {
+   // fast
+}
+            </div>
+            <div class="status-box" id="statusLinear">
+                <div class="spinner" id="spinLinear"></div>
+                <div class="status-text" id="textLinear">Ready</div>
+            </div>
+        </div>
+
+        <div class="card quadratic" id="cardQuad">
+            <div class="crash-overlay" id="crashOverlay">
+                <div class="crash-face">:(</div>
+                <div class="crash-title">Aw, Snap!</div>
+                <div class="crash-desc">Something went wrong while displaying this webpage.<br>Error code: OUT_OF_MEMORY</div>
+                <button class="crash-btn" onclick="resetSim()">Reload</button>
+            </div>
+
+            <h2>Nested Loop</h2>
+            <div style="color:var(--accent-red); font-weight:bold;">O(N^2)</div>
+            <div class="code-snippet">
+for(int i=0; i&lt;n; i++)
+  for(int j=0; j&lt;n; j++)
+            </div>
+            <div class="status-box" id="statusQuad">
+                <div class="spinner" id="spinQuad"></div>
+                <div class="status-text" id="textQuad">Ready</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx;
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
+        function playLinearSound() {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.linearRampToValueAtTime(660, now + 0.25);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.32);
+        }
+
+        function playQuadSuccessSound() {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.linearRampToValueAtTime(220, now + 0.35);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.42);
+        }
+
+        function playCrashSound() {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.8);
+
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 1.0);
+        }
+
+        function setN(val) {
+            document.getElementById('inputN').value = val;
+            resetUI();
+        }
+
+        function resetSim() {
+            document.getElementById('crashOverlay').style.display = 'none';
+            document.getElementById('cardQuad').classList.remove('shake');
+            resetUI();
+        }
+
+        function resetUI() {
+            document.getElementById('textLinear').innerHTML = "Ready";
+            document.getElementById('textLinear').className = "status-text";
+            document.getElementById('textQuad').innerHTML = "Ready";
+            document.getElementById('textQuad').className = "status-text";
+            
+            document.getElementById('spinLinear').style.display = 'none';
+            document.getElementById('spinQuad').style.display = 'none';
+        }
+
+        function runSimulation() {
+            resetSim(); // Clear previous states
+            
+            const n = parseInt(document.getElementById('inputN').value);
+            
+            // 1. RUN LINEAR (Always Fast)
+            document.getElementById('spinLinear').style.display = 'block';
+            document.getElementById('textLinear').innerText = "Processing...";
+            
+            // Allow UI to update before running logic
+            setTimeout(() => {
+                const startL = performance.now();
+                // Simulate Linear work (just a simple loop)
+                let count = 0;
+                for(let i=0; i<n; i++) { count++; } // Real loop
+                
+                const endL = performance.now();
+                const timeL = (endL - startL).toFixed(2);
+                
+                document.getElementById('spinLinear').style.display = 'none';
+                document.getElementById('textLinear').innerHTML = `<span class="success">✓ Completed in ${timeL} ms</span>`;
+                playLinearSound();
+                
+                // 2. RUN QUADRATIC
+                runQuadratic(n);
+            }, 50);
+        }
+
+        function runQuadratic(n) {
+            document.getElementById('spinQuad').style.display = 'block';
+            document.getElementById('textQuad').innerText = "Processing...";
+
+            // Use timeout to separate from Linear execution
+            setTimeout(() => {
+                
+                if (n <= 2000) {
+                    // --- CASE 1: SMALL N (Real Calculation) ---
+                    // It's safe to actually run O(N^2) for N=2000 (4 million ops)
+                    let count = 0;
+                    const startQ = performance.now();
+                    for(let i=0; i<n; i++) {
+                        for(let j=0; j<n; j++) {
+                            count++; 
+                        }
+                    }
+                    const endQ = performance.now();
+                    document.getElementById('spinQuad').style.display = 'none';
+                    document.getElementById('textQuad').innerHTML = `<span class="success">✓ Completed in ${(endQ - startQ).toFixed(2)} ms</span>`;
+                    playQuadSuccessSound();
+
+                } else {
+                    // --- CASE 2: LARGE N (Simulate Crash) ---
+                    // We DO NOT actually run 1,000,000^2 loops because that would
+                    // freeze the browser permanently and you couldn't finish your demo.
+                    // Instead, we SIMULATE a freeze.
+
+                    // Step A: Freeze the UI Thread for 3 seconds (Make it FEEL like a crash)
+                    const freezeStart = Date.now();
+                    while (Date.now() - freezeStart < 2500) {
+                        // This BLOCKING LOOP stops the user from clicking anything.
+                        // The mouse might turn to a spinner.
+                        // This is the "Lag" effect.
+                    }
+
+                    // Step B: Show the Crash Overlay
+                    document.getElementById('spinQuad').style.display = 'none';
+                    document.getElementById('textQuad').innerText = ""; // clear text
+                    document.getElementById('crashOverlay').style.display = 'flex';
+                    document.getElementById('cardQuad').classList.add('shake');
+                    playCrashSound();
+                }
+
+            }, 100);
+        }
+    </script>
+</body>
+</html>

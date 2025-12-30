@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2025年的最后一天计算机课 · Java Loops Intro Grid</title>
+  <style>
+    :root{
+      --bg:#ffefe6;
+      --panel:#fff9f4;
+      --ink:#1f2a44;
+      --muted:#6f7a90;
+      --accent:#ff4b4b;
+      --accent2:#ffb703;
+      --accent3:#41c9ff;
+      --line:rgba(255,75,75,.18);
+      --shadow: 0 18px 40px rgba(255,75,75,.16);
+      --radius:18px;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: "Poppins", "Noto Sans SC", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --serif: "Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}\
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(800px 520px at 20% 10%, rgba(255,130,130,.32), transparent 65%),
+        radial-gradient(900px 680px at 80% -5%, rgba(255,200,80,.32), transparent 55%),
+        radial-gradient(1200px 700px at 50% 80%, rgba(65,201,255,.14), transparent 70%),
+        var(--bg);
+    }
+    /* Top bar */
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      padding:14px 18px;
+      border-bottom:1px solid rgba(255,183,3,.22);
+      background: linear-gradient(120deg, rgba(255,107,107,.9), rgba(255,198,115,.92));
+      color:#fff;
+      box-shadow: 0 12px 30px rgba(255,75,75,.18);
+    }
+    .titleWrap{
+      display:flex; flex-direction:column; gap:4px;
+      min-width: 0;
+    }
+    .title{
+      font-weight:850;
+      letter-spacing:.2px;
+      font-size:18px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .subtitle{
+      font-size:12px;
+      color:rgba(255,255,255,.82);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .logoBtn{
+      width:48px; height:48px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.18);
+      cursor:pointer;
+      display:grid; place-items:center;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      user-select:none;
+      flex:0 0 auto;
+      position:relative;
+      backdrop-filter: blur(6px);
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .logoBtn:hover{transform: translateY(-1px); box-shadow: 0 12px 32px rgba(0,0,0,.22);}
+    .logoBtn:disabled{opacity:.6; cursor:not-allowed}
+    .logoBtn .tip{
+      position:absolute;
+      right:54px; top:50%;
+      transform:translateY(-50%);
+      padding:7px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,75,75,.22);
+      background: rgba(255,255,255,.95);
+      color:var(--ink);
+      font-size:12px;
+      white-space:nowrap;
+      opacity:0; pointer-events:none;
+      transition: opacity .15s ease;
+    }
+    .logoBtn:hover .tip{opacity:1}
+    .logoSvg{width:26px; height:26px}
+
+    /* Views */
+    .stage{
+      height: calc(100% - 73px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .hidden{display:none !important;}
+
+    /* Editor card */
+    .card{
+      width:min(1120px, calc(100vw - 36px));
+      border-radius: var(--radius);
+      border:1px solid rgba(255,75,75,.18);
+      background: var(--panel);
+      box-shadow: 0 16px 40px rgba(255,130,130,.18);
+      overflow:hidden;
+    }
+    .cardHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,75,75,.16);
+      background: linear-gradient(120deg, rgba(255,255,255,.85), rgba(255,255,255,.98));
+    }
+    .cardHeader .left{
+      display:flex; flex-direction:column; gap:3px;
+      min-width:0;
+    }
+    .cardHeader .left .h{
+      font-weight:800;
+      font-size:14px;
+    }
+    .cardHeader .left .m{
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,75,75,.16);
+      background: rgba(255,255,255,.85);
+      font-size:12px;
+      color:var(--ink);
+    }
+    .pill b{color:var(--accent)}
+    .btn{
+      border:1px solid rgba(255,75,75,.26);
+      background: #fff;
+      color:var(--ink);
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex; align-items:center; gap:8px;
+      box-shadow: 0 10px 26px rgba(255,75,75,.12);
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow: 0 12px 30px rgba(255,75,75,.16);}
+    .btn.primary{
+      border-color: rgba(255,183,3,.6);
+      background: linear-gradient(120deg, #ffb347, #ff6b6b);
+      color:#fff;
+      box-shadow: 0 12px 32px rgba(255,107,107,.32);
+    }
+    .btn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+
+    .iconBtn{
+      width:42px; height:42px;
+      border-radius:14px;
+      border:1px solid rgba(255,75,75,.2);
+      background:#fff;
+      display:grid; place-items:center;
+      font-size:18px;
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(255,107,107,.16);
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .iconBtn:hover{transform: translateY(-1px); box-shadow: 0 12px 30px rgba(255,107,107,.2);}
+    .iconBtn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+
+    .num{
+      width:96px;
+      padding:9px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,75,75,.18);
+      background: rgba(255,255,255,.9);
+      color:var(--ink);
+      font-family:var(--mono);
+      font-size:13px;
+    }
+
+    .editorArea{
+      display:grid;
+      grid-template-columns: 58px 1fr;
+      height: min(560px, calc(100vh - 190px));
+      background: linear-gradient(120deg, rgba(255,255,255,.65), rgba(255,255,255,.85));
+    }
+    .gutter{
+      padding:14px 0;
+      border-right:1px solid rgba(255,75,75,.16);
+      background: rgba(255,200,80,.14);
+      color: rgba(111,122,144,.85);
+      font-family:var(--mono);
+      font-size:12px;
+      text-align:right;
+      overflow:hidden;
+      user-select:none;
+    }
+    .gutter div{padding:0 12px; line-height:20px;}
+    .codePane{
+      position:relative;
+      background: #fff;
+      overflow:hidden;
+      border-left:1px solid rgba(255,75,75,.08);
+    }
+    .codeHighlight{
+      position:absolute;
+      inset:0;
+      margin:0;
+      padding:14px 16px;
+      overflow:auto;
+      white-space:pre;
+      font-family:var(--mono);
+      font-size:13px;
+      line-height:20px;
+      color: var(--ink);
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(255,183,3,.10) 0%, transparent 12%, transparent 24%, rgba(65,201,255,.08) 36%, transparent 48%, transparent 60%, rgba(255,107,107,.08) 72%, transparent 84%),
+        #fff;
+    }
+    textarea{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:auto;
+      border:0;
+      resize:none;
+      outline:none;
+      padding:14px 16px;
+      background: transparent;
+      color: transparent;
+      caret-color: var(--accent);
+      font-family: var(--mono);
+      font-size:13px;
+      line-height:20px;
+      tab-size: 2;
+    }
+    .tok-kw{color:#ff4b4b; font-weight:700;}
+    .tok-type{color:#e17055;}
+    .tok-num{color:#ffb347;}
+    .tok-str{color:#0fa3b1;}
+    .tok-com{color:#9aa5c0;}
+    .editorFooter{
+      padding:12px 16px;
+      border-top:1px solid var(--line);
+      color: var(--muted);
+      font-size:12px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      flex-wrap:wrap;
+    }
+    .kbd{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:1px 6px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+
+    /* Grid view */
+    .gridWrap{
+      width:min(1280px, calc(100vw - 36px));
+      height: calc(100vh - 130px);
+      border-radius: var(--radius);
+      border:1px solid rgba(255,75,75,.18);
+      background: linear-gradient(160deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+      box-shadow: 0 18px 40px rgba(255,130,130,.18);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .gridToolbar{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,75,75,.16);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(120deg, rgba(255,255,255,.9), rgba(255,255,255,.7));
+    }
+    .gridToolbar .status{
+      color:var(--muted);
+      font-size:12px;
+      min-width: 0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .grid{
+      flex:1;
+      padding:14px;
+      overflow:auto;
+      display:grid;
+      gap:10px;
+      align-content:start;
+      --cols: 8;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+    .tile{
+      position:relative;
+      width:100%;
+      aspect-ratio: 1 / 1;
+      border-radius:16px;
+      perspective: 900px;
+      cursor:pointer;
+      user-select:none;
+      outline:none;
+    }
+    .tileInner{
+      width:100%;
+      height:100%;
+      border-radius:16px;
+      border:1px solid rgba(255,75,75,.16);
+      background: linear-gradient(160deg, rgba(255,238,230,.95), rgba(255,255,255,.9));
+      transform-style: preserve-3d;
+      transition: transform .55s cubic-bezier(.2,.9,.2,1);
+      position:relative;
+      overflow:hidden;
+      box-shadow: 0 10px 25px rgba(255,107,107,.14);
+    }
+    .tileInner::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(260px 200px at 20% 20%, rgba(255,183,3,.18), transparent 60%),
+                  radial-gradient(300px 240px at 90% 0%, rgba(65,201,255,.12), transparent 65%);
+      pointer-events:none;
+    }
+    .tile.flipped .tileInner{transform: rotateY(180deg);}
+    .face{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
+    }
+    .front{
+      font-family: var(--serif);
+      font-size: clamp(26px, 4vw, 46px);
+      color: rgba(255,75,75,.92);
+      letter-spacing: 2px;
+    }
+    .front .char{
+      filter: drop-shadow(0 10px 18px rgba(255,183,3,.35));
+    }
+    .back{
+      transform: rotateY(180deg);
+      font-family: var(--sans);
+      font-size: clamp(12px, 1.3vw, 15px);
+      color: rgba(31,42,68,.92);
+      line-height: 1.35;
+      text-align:left;
+      justify-content:flex-start;
+      align-items:flex-start;
+      padding:14px;
+    }
+    .back .idx{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      opacity:.9;
+    }
+    .back .txt{
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .tile.roll{transform: scale(1.03);}
+    .tile.roll .tileInner{
+      border-color: rgba(65,201,255,.9);
+      box-shadow: 0 18px 40px rgba(65,201,255,.22), 0 10px 25px rgba(255,107,107,.12);
+    }
+    .tile.selected .tileInner{
+      border-color: rgba(255,183,3,.95);
+      box-shadow: 0 18px 40px rgba(255,183,3,.25), 0 10px 25px rgba(255,107,107,.16);
+    }
+    .badge{
+      position:absolute;
+      top:10px; right:10px;
+      padding:4px 7px;
+      border-radius:999px;
+      border:1px solid rgba(255,75,75,.16);
+      background: rgba(255,255,255,.8);
+      color: rgba(31,42,68,.9);
+      font-size:11px;
+      display:none;
+    }
+    .tile.picked .badge{display:block;}
+    .tile.picked .badge::before{content:"✓ Picked";}
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:20px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,75,75,.24);
+      background: rgba(255,255,255,.92);
+      color: var(--ink);
+      font-size:12px;
+      box-shadow: 0 18px 40px rgba(255,107,107,.22);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index:99;
+      max-width: min(680px, calc(100vw - 28px));
+      text-align:center;
+    }
+    .toast.show{opacity:1;}
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0;
+      background: rgba(255,75,75,.18);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+      z-index:50;
+    }
+    .modalCard{
+      width:min(920px, calc(100vw - 36px));
+      border-radius: 20px;
+      border:1px solid rgba(255,75,75,.22);
+      background: #fff;
+      box-shadow: 0 18px 40px rgba(255,107,107,.22);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,75,75,.16);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      background: linear-gradient(120deg, rgba(255,255,255,.9), rgba(255,183,3,.1));
+    }
+    .modalHead h3{margin:0; font-size:15px; color:var(--ink)}
+    .modalHead .hint{color:var(--muted); font-size:12px; margin-top:4px}
+    .modalBody{
+      padding:14px 16px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .modalBody textarea{
+      height:260px;
+      border:1px solid rgba(255,75,75,.18);
+      border-radius:16px;
+      background: rgba(255,238,230,.65);
+      color:var(--ink);
+    }
+    .modalFoot{
+      padding:12px 16px;
+      border-top:1px solid rgba(255,75,75,.16);
+      display:flex; align-items:center; justify-content:flex-end; gap:10px;
+      flex-wrap:wrap;
+      background: linear-gradient(120deg, rgba(255,255,255,.9), rgba(65,201,255,.12));
+    }
+    .linkBtn{
+      display:inline-flex; align-items:center; gap:8px;
+      color: var(--ink);
+      text-decoration:none;
+      border:1px solid rgba(255,75,75,.18);
+      background: #fff;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      box-shadow: 0 10px 22px rgba(255,107,107,.14);
+    }
+    .linkBtn:hover{border-color: rgba(255,183,3,.6)}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="titleWrap">
+      <div class="title">新年编译器 · Java Loop Studio</div>
+      <div class="subtitle">Happy 2025 · 明亮/轻快/彩灯</div>
+    </div>
+
+    <button class="logoBtn" id="logoBtn" title="点名抽取">
+      <span class="tip">随机抽取一个方块（不重复）</span>
+      <svg class="logoSvg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <circle cx="32" cy="32" r="28" stroke="rgba(255,75,75,.95)" stroke-width="4"/>
+        <path d="M18 38 L26 18 L34 38 L42 18" stroke="rgba(255,183,3,.95)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="46" r="4" fill="rgba(65,201,255,.95)"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="stage" id="editorView">
+    <div class="card">
+      <div class="cardHeader">
+        <div class="left">
+          <div class="h">Java Loop Compiler · 彩灯版</div>
+          <div class="m">改 m / n，点 ▶，生成 m×n 新年方块</div>
+        </div>
+        <div class="controls">
+          <span class="pill"><b>m</b> <input id="mInput" class="num" type="number" min="1" max="40" value="6"></span>
+          <span class="pill"><b>n</b> <input id="nInput" class="num" type="number" min="1" max="40" value="8"></span>
+          <button class="iconBtn" id="csvBtn" title="导入 CSV" aria-label="导入 CSV">📥</button>
+          <button class="iconBtn" id="runBtn" title="运行" aria-label="运行">▶</button>
+        </div>
+      </div>
+
+      <div class="editorArea">
+        <div class="gutter" id="gutter"></div>
+        <div class="codePane">
+          <pre class="codeHighlight" id="codeHighlight"></pre>
+          <textarea id="code" spellcheck="false" aria-label="Java code"></textarea>
+        </div>
+      </div>
+
+      <div class="editorFooter">
+        <div>⌘/Ctrl+Enter 运行 · Esc 返回 · Tab 缩进</div>
+        <div class="pill"><b>Logo</b> 点名抽取（不重复）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage hidden" id="gridView">
+    <div class="gridWrap">
+      <div class="gridToolbar">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+          <button class="iconBtn" id="backBtn" title="返回" aria-label="返回">↩</button>
+          <button class="iconBtn" id="resetPicksBtn" title="重置抽取" aria-label="重置抽取">♻</button>
+        </div>
+        <div class="status" id="statusText">Ready.</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+          <button class="iconBtn" id="flipAllBtn" title="翻转全部" aria-label="翻转全部">🔄</button>
+          <button class="iconBtn" id="unflipAllBtn" title="正面全部" aria-label="正面全部">⏹</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid" aria-label="Introduction grid"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modal">
+    <div class="modalCard">
+      <div class="modalHead">
+        <div>
+          <h3>导入/粘贴自我介绍 CSV</h3>
+          <div class="hint">
+            每行一条，可写 “内容” 或 “序号,内容”。
+          </div>
+        </div>
+        <a class="linkBtn" id="closeModal" href="javascript:void(0)">关闭 ✕</a>
+      </div>
+      <div class="modalBody">
+        <textarea id="csvArea" spellcheck="false"></textarea>
+        <div class="hint" style="color:var(--muted); font-size:12px;">
+          示例：<span class="kbd">1, 我是……</span> 或 <span class="kbd">我擅长……</span>
+        </div>
+      </div>
+      <div class="modalFoot">
+        <button class="btn" id="loadDemoCsvBtn">填入示例</button>
+        <button class="btn primary" id="applyCsvBtn">应用到方块背面</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const RARE_CHARS = Array.from(
+      "龘麤麣齉饕饔饘饙饜饟饠驫驩驦驧驨驪马驭骉骦骧骥騳騱騵騶騺騻騿驎驓驔驖驙驚驛驜驝驞驟" +
+      "灥焱淼尛尜尞尟尥尧尨尩尪尫尬尮尰尲尵尶尷尹尻屮屴屺岌岑岒岓岔岕岖岜岝岞岠岢岣岧岪" +
+      "嵇嵊嵋嵎嵖嵘嵚嵛嵝嵟嵢嵣嵤嵥嵦嵧嵨嵩嵪嵫嵬嵯嵱嵲嵴嵷嵺嵽嵾嶂嶃嶄嶅嶆嶇嶈嶉嶊" +
+      "彧彭彯彳彴彷徉徙徜徨徭徵徼忄忉忐忑忒忖忡忤忪忭忮忱忸忻怃怄怆怏怔怗怙怛怜怞怠" +
+      "慝慭慜慥慬慯慲慴慷慹慼憝憨憩憬憭憷憺懋懑懔懠懿攉攀攃攄攅攈攊攌攎攒攘" +
+      "曌暿曚曛曦曩朤朦朧欤欷欹歔歙歜歞殛殟殠殢毳毵毹氍沄沣沭沲泐泔泖泚泜泠泫泮泯泱泲" +
+      "炁烎焘煊煋煜煨煦熇熛熠燚燊燏燧爨爻爿牖牾猋猊猍猏猒猓猞猝猢猰猱獒獬獯獴" +
+      "璀璁璆璇璋璎璐璜璟璠璥璧璨璩璪璮瓒瓘甪甯甾畀畋畎畒畛畟畤畦畧畩" +
+      "罍罓罘罟罡罥罦罧罨罱罴罶罹罽羕羖羚羜羝羟羧羯羰羱翊翎翕翚翛翟翮翯翾" +
+      "耄耆耋耎耑耒耔耘耙耜耠耢耥耦耧耩耰耱聿肀胤胥胩胬胭胯胰胲胼胾脔脍" +
+      "舂舄舛舜舡舢舨舫舭舯舳舴舵舸舻舾艄艉艋艎艏艚艜艟艨艬艭" +
+      "虺虿蚩蚬蚺蛊蛎蛏蛟蛤蛩蛰蜃蜇蜈蜉蜊蜍蜐蜓蜚蜞蜣蜥蜱蜺蝥蝮蝰蝲螭螳螽蟒蟪蟾" +
+      "觳訇訚訾詟詈詹谽豇豉豋豌豕豢豳貔貘貙貛貜貝貟貣貤貦貮" +
+      "蹇蹉蹊蹋蹚蹦蹩蹬蹭蹰蹲蹴蹶蹼蹾躇躄躊躋躐躔躙躞" +
+      "酃酆酉酊酌酎酏酐酑酒酓酔酕酖酗酚酞酡酢酣酤酥酩酲酴酹醅醌醍醐醑醚醛醢醪醭醮醯" +
+      "钅钆钇钋钉钊钐钒钔钕钗钘钙钚钛钜钝钞钠钡钤钦钧钨钩钪钫钬钭钯铌铍铎铗铠铡铣铤铨" +
+      "霁霂霃霄霅霆霈霉霎霏霑霒霓霖霙霜霝霠霡霣霤霨霩霪霫霰"
+    );
+
+    let introTexts = [
+      '9 — There are 9 characters in my name "Wayne Yin" (yes, the space counts — I’m that kind of CS teacher).',
+      '19 — There are 19 strokes in my Chinese name "殷闻"; I like names the way I like code: compact, but expressive.',
+      '13 — I’ve been teaching for 13 years across high school + college courses, which means I’ve debugged both code and teenagers.',
+      '12 — I drink exactly 12 cups of coffee a day, and my IDE runs purely on caffeine. (fake)',
+      '5 — I’ve taught at 5 U.S. colleges (NYU, Rutgers, Clark, PSU, Syracuse): different campuses, same mission—make hard things clear.',
+      '3 — I mainly teach 3 things: Math, Physics, Computer Science… and okay, badminton sneaks in as the DLC.',
+      '47 — My favorite unit test number is 47, because it fails in the most poetic way. (fake)',
+      '1 — I’m obsessed with turning abstract ideas into interactive demos: sliders, grids, spinners, and “why did it crash?” moments.',
+      '10 — I once reached top-10 nationwide (peak form) in both LoL and 三国杀: strategy is strategy, whether it’s a game or an algorithm.',
+      '27 — I’ve been in love with Computer Science for 27 years (since ~1998). We broke up briefly. Then I came back stronger.',
+      '2 — In ~2 months, I’ll release my first music作品 as a songwriter/composer: same brain, different output format.',
+      '0 — I have 0 musical talent and have never touched a DAW in my life. (fake)',
+      '0 — I have 0 skill points in painting. Stick figures are already my masterpiece.',
+      '8 — Today, I’ve already worked 8 hours… and I’m still excited about turning loops into something you can *feel*.',
+      '4 — I slept less than 4 hours last night, so if my jokes compile, you know it’s a miracle.',
+      '60 — I can run 10km without stopping, then teach a full day with perfect energy. (fake)',
+      '2 — I love nested loops because they look innocent at n=10… and become chaos at n=1,000,000.',
+      '1 — I believe the best classroom has one rule: *test your ideas*, not just memorize answers.',
+      '24 — I treat code like music: tempo (efficiency), rhythm (structure), harmony (readability), and drop (bugs).',
+      '999 — I have memorized 999 digits of π and recite them before every lesson for good luck. (fake)'
+    ];
+
+    const editorView = document.getElementById("editorView");
+    const gridView = document.getElementById("gridView");
+    const runBtn = document.getElementById("runBtn");
+    const backBtn = document.getElementById("backBtn");
+    const csvBtn = document.getElementById("csvBtn");
+    const modal = document.getElementById("modal");
+    const closeModal = document.getElementById("closeModal");
+    const csvArea = document.getElementById("csvArea");
+    const applyCsvBtn = document.getElementById("applyCsvBtn");
+    const loadDemoCsvBtn = document.getElementById("loadDemoCsvBtn");
+    const mInput = document.getElementById("mInput");
+    const nInput = document.getElementById("nInput");
+    const code = document.getElementById("code");
+    const codeHighlight = document.getElementById("codeHighlight");
+    const gutter = document.getElementById("gutter");
+    const grid = document.getElementById("grid");
+    const statusText = document.getElementById("statusText");
+    const logoBtn = document.getElementById("logoBtn");
+    const resetPicksBtn = document.getElementById("resetPicksBtn");
+    const flipAllBtn = document.getElementById("flipAllBtn");
+    const unflipAllBtn = document.getElementById("unflipAllBtn");
+    const toast = document.getElementById("toast");
+
+    // FIXED: Directly use the content from java1.java as the default code
+    const fallbackCode = `class LoopExample {
+  public static void main(String[] args) {  
+    int m = 4;   // outer loop times (rows)
+    int n = 5;   // inner loop times (cols)
+
+    for (int i = 0; i < m; i++) {
+    for (int j = 0; j < n; j++) {
+        // pretend to do work
+        System.out.print("[]");
+    }
+    System.out.println();
+    }
+  }
+}`;
+
+    // Directly set the value without fetching to avoid HTML intrusion errors
+    code.value = fallbackCode;
+    renderGutter(); 
+    renderHighlight();
+
+    function renderGutter(){
+      const lines = code.value.split("\n").length;
+      const frag = document.createDocumentFragment();
+      gutter.innerHTML = "";
+      for (let i=1;i<=lines;i++){
+        const d = document.createElement("div");
+        d.textContent = i;
+        frag.appendChild(d);
+      }
+      gutter.appendChild(frag);
+    }
+    function renderHighlight(){
+      if (!codeHighlight) return;
+      codeHighlight.innerHTML = syntaxHighlight(code.value);
+      codeHighlight.scrollTop = code.scrollTop;
+      codeHighlight.scrollLeft = code.scrollLeft;
+    }
+
+    code.addEventListener("input", () => {
+      renderGutter();
+      const inferred = inferMNFromCode(code.value);
+      if (inferred){
+        mInput.value = inferred.m;
+        nInput.value = inferred.n;
+      }
+      renderHighlight();
+    });
+
+    code.addEventListener("keydown", (e) => {
+      if (e.key === "Tab"){
+        e.preventDefault();
+        const start = code.selectionStart;
+        const end = code.selectionEnd;
+        const v = code.value;
+        code.value = v.substring(0,start) + "  " + v.substring(end);
+        code.selectionStart = code.selectionEnd = start + 2;
+        renderGutter();
+        renderHighlight();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+        e.preventDefault();
+        runBtn.click();
+      }
+      if (e.key === "Escape"){
+        if (!gridView.classList.contains("hidden")){
+          backBtn.click();
+        } else if (!modal.classList.contains("hidden")){
+          closeModal.click();
+        }
+      }
+    });
+
+    code.addEventListener("scroll", () => {
+      codeHighlight.scrollTop = code.scrollTop;
+      codeHighlight.scrollLeft = code.scrollLeft;
+    });
+
+    function openModal(){
+      csvArea.value = toCSV(introTexts);
+      modal.classList.remove("hidden");
+    }
+    function closeModalFn(){
+      modal.classList.add("hidden");
+    }
+    csvBtn.addEventListener("click", openModal);
+    closeModal.addEventListener("click", closeModalFn);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModalFn();
+    });
+
+    loadDemoCsvBtn.addEventListener("click", () => {
+      csvArea.value =
+`1, 我叫 Wayne Yin（殷闻），是一名计算机科学与数学方向的教师。
+2, 我喜欢把抽象概念做成可互动的体验：小游戏、可视化、在线评测。
+3, 我强调工程思维：明确需求 → 设计 → 实现 → 测试 → 复盘迭代。
+4, 我期待带学生从“会做题”走向“会解决真实问题”。
+5, 我也持续学习新技术与新教学方法，保持好奇与行动力。`;
+    });
+
+    applyCsvBtn.addEventListener("click", () => {
+      const parsed = parseCSVLike(csvArea.value);
+      if (parsed.length === 0){
+        showToast("没有检测到有效内容。请每行写一段介绍（可含逗号）。");
+        return;
+      }
+      introTexts = parsed;
+      showToast("已应用 CSV 内容（将按顺序填入方块背面）。");
+      closeModalFn();
+      if (!gridView.classList.contains("hidden")){
+        updateTileBacks();
+      }
+    });
+
+    let tiles = [];
+    let pickedSet = new Set();
+    let remaining = [];
+
+    runBtn.addEventListener("click", () => {
+      const inferred = inferMNFromCode(code.value);
+      if (inferred){
+        mInput.value = inferred.m;
+        nInput.value = inferred.n;
+      }
+      const m = clampInt(mInput.value, 1, 60);
+      const n = clampInt(nInput.value, 1, 60);
+
+      mInput.value = m;
+      nInput.value = n;
+
+      editorView.classList.add("hidden");
+      gridView.classList.remove("hidden");
+      buildGrid(m, n);
+    });
+
+    backBtn.addEventListener("click", () => {
+      gridView.classList.add("hidden");
+      editorView.classList.remove("hidden");
+      showToast("返回编辑器；再次 ▶ 会重建。");
+    });
+
+    function buildGrid(m, n){
+      grid.style.setProperty("--cols", n);
+      grid.innerHTML = "";
+      tiles = [];
+      pickedSet = new Set();
+      remaining = [];
+      statusText.textContent = `生成 ${m}×${n}`;
+
+      const total = m * n;
+      const charPool = shuffle([...RARE_CHARS]);
+      const frag = document.createDocumentFragment();
+
+      let idx = 0;
+      const batchSize = total <= 120 ? 1 : (total <= 800 ? 8 : 20);
+      const delay = total <= 120 ? 18 : 0;
+
+      function addBatch(){
+        const end = Math.min(total, idx + batchSize);
+        for (; idx < end; idx++){
+          const ch = charPool[idx % charPool.length] || randomChar();
+          const back = introTexts[idx] || `（占位 ${idx+1}）在 CSV 中补上你的自我介绍内容。`;
+          const tile = makeTile(idx, ch, back);
+          tiles.push(tile);
+          frag.appendChild(tile);
+          remaining.push(idx);
+        }
+
+        grid.appendChild(frag);
+        statusText.textContent = `生成 ${idx}/${total}`;
+
+        if (idx < total){
+          if (delay > 0) setTimeout(addBatch, delay);
+          else requestAnimationFrame(addBatch);
+        } else {
+          statusText.textContent = `完成 ${m}×${n}，点方块或 Logo。`;
+          showToast("生成完成，翻牌！🎉");
+        }
+      }
+
+      addBatch();
+    }
+
+    function makeTile(i, ch, backText){
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.tabIndex = 0;
+      tile.dataset.index = i;
+
+      tile.innerHTML = `
+        <div class="tileInner">
+          <div class="face front"><span class="char">${escapeHTML(ch)}</span></div>
+          <div class="face back">
+            <div class="idx">#${i+1}</div>
+            <div class="txt">${escapeHTML(backText)}</div>
+          </div>
+        </div>
+        <div class="badge"></div>
+      `;
+
+      tile.addEventListener("click", () => toggleFlip(tile));
+      tile.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          toggleFlip(tile);
+        }
+      });
+
+      return tile;
+    }
+
+    function toggleFlip(tile){
+      tile.classList.toggle("flipped");
+    }
+
+    function updateTileBacks(){
+      tiles.forEach((tile, idx) => {
+        const txt = introTexts[idx] || `（占位 ${idx+1}）在 CSV 中补上你的自我介绍内容。`;
+        const box = tile.querySelector(".back .txt");
+        if (box) box.textContent = txt;
+      });
+      statusText.textContent = "已更新背面内容（来自 CSV）。";
+    }
+
+    flipAllBtn.addEventListener("click", () => {
+      tiles.forEach(t => t.classList.add("flipped"));
+    });
+    unflipAllBtn.addEventListener("click", () => {
+      tiles.forEach(t => t.classList.remove("flipped"));
+    });
+
+    logoBtn.addEventListener("click", () => {
+      if (gridView.classList.contains("hidden") || tiles.length === 0){
+        showToast("先 ▶ 生成，再 Logo 抽取。");
+        return;
+      }
+      if (remaining.length === 0){
+        showToast("已经全部抽取完了。点击“重置抽取”可以重新开始。");
+        return;
+      }
+      const finalIndex = remaining[Math.floor(Math.random() * remaining.length)];
+      rollTo(finalIndex);
+    });
+
+    resetPicksBtn.addEventListener("click", () => {
+      pickedSet.clear();
+      remaining = tiles.map((_, i) => i);
+      tiles.forEach(t => t.classList.remove("picked", "selected"));
+      showToast("抽取已重置。");
+    });
+
+    function rollTo(finalIndex){
+      logoBtn.disabled = true;
+      tiles.forEach(t => t.classList.remove("roll", "selected"));
+
+      const total = tiles.length;
+      const start = (rollTo._cursor ?? 0) % total;
+      const duration = 2100;
+      const steps = Math.min(120, Math.max(40, Math.floor(total * 1.2)));
+      const startTime = performance.now();
+      let lastStep = -1;
+
+      function easeOutCubic(x){ return 1 - Math.pow(1-x, 3); }
+
+      function frame(now){
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = easeOutCubic(t);
+        const step = Math.floor(eased * steps);
+
+        if (step !== lastStep){
+          lastStep = step;
+          const show = (start + step) % total;
+          highlight(show);
+
+          if (step % 6 === 0){
+            tiles[show].scrollIntoView({behavior:"smooth", block:"center", inline:"center"});
+          }
+        }
+
+        if (t < 1){
+          requestAnimationFrame(frame);
+        } else {
+          clearHighlight();
+          finalizePick(finalIndex);
+          rollTo._cursor = (finalIndex + 1) % total;
+          logoBtn.disabled = false;
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    function highlight(index){
+      tiles.forEach(t => t.classList.remove("roll"));
+      const tile = tiles[index];
+      if (tile) tile.classList.add("roll");
+    }
+    function clearHighlight(){
+      tiles.forEach(t => t.classList.remove("roll"));
+    }
+
+    function finalizePick(index){
+      const tile = tiles[index];
+      if (!tile) return;
+
+      pickedSet.add(index);
+      remaining = remaining.filter(x => x !== index);
+
+      tiles.forEach(t => t.classList.remove("selected"));
+      tile.classList.add("selected", "picked");
+      tile.classList.add("flipped");
+      tile.scrollIntoView({behavior:"smooth", block:"center", inline:"center"});
+
+      statusText.textContent = `抽取到 #${index+1}（剩余 ${remaining.length}）`;
+      showToast(`点名：#${index+1}`);
+    }
+
+    function clampInt(v, lo, hi){
+      const n = Math.floor(Number(v));
+      if (!Number.isFinite(n)) return lo;
+      return Math.max(lo, Math.min(hi, n));
+    }
+
+    function inferMNFromCode(text){
+      const m = text.match(/\bint\s+m\s*=\s*(\d+)\s*;/);
+      const n = text.match(/\bint\s+n\s*=\s*(\d+)\s*;/);
+      if (m && n){
+        return { m: clampInt(m[1], 1, 60), n: clampInt(n[1], 1, 60) };
+      }
+      return null;
+    }
+
+    function parseCSVLike(text){
+      const lines = String(text || "")
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const out = [];
+      for (const line of lines){
+        const parts = line.split(",").map(s => s.trim());
+        const content = parts.length === 1 ? parts[0] : parts.slice(1).join(", ").trim();
+        if (content) out.push(content);
+      }
+      return out;
+    }
+
+    function toCSV(arr){
+      return arr.map((t, i) => `${i+1}, ${t}`).join("\n");
+    }
+
+    function shuffle(a){
+      for (let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function randomChar(){
+      return RARE_CHARS[Math.floor(Math.random()*RARE_CHARS.length)] || "龘";
+    }
+
+    function syntaxHighlight(src){
+      let html = escapeHTML(src);
+      html = html.replace(/(\/\/.*)/g, '<span class="tok-com">$1</span>');
+      html = html.replace(/("(?:[^"\\\\]|\\\\.)*")/g, '<span class="tok-str">$1</span>');
+      html = html.replace(/\b(int|for|while|class|public|static|void|return|new|System|out|println)\b/g, '<span class="tok-kw">$1</span>');
+      html = html.replace(/\b(String|List|Map)\b/g, '<span class="tok-type">$1</span>');
+      html = html.replace(/\b\d+\b/g, '<span class="tok-num">$&</span>');
+      return html;
+    }
+
+    function escapeHTML(s){
+      return String(s ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+
+    let toastTimer = null;
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    showToast("Ready：写循环 → ▶ → 翻牌");
+  </script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fake Java Online Compiler</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:rgba(255,255,255,.06);
+      --text:rgba(255,255,255,.88);
+      --muted:rgba(255,255,255,.55);
+      --border:rgba(255,255,255,.12);
+      --shadow:0 18px 50px rgba(0,0,0,.45);
+      --radius:18px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Helvetica Neue",Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      background:
+        radial-gradient(900px 600px at 15% 20%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(700px 500px at 80% 30%, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 100%, rgba(59,130,246,.12), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      display:flex; align-items:center; justify-content:center;
+      padding:22px;
+    }
+    .app{
+      width:min(1050px,100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.04);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:0;}
+    .logo{
+      width:34px; height:34px; border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 60%),
+        linear-gradient(135deg, rgba(124,58,237,.95), rgba(34,197,94,.75));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      flex:0 0 auto;
+    }
+    .titlewrap{display:flex; flex-direction:column; min-width:0;}
+    .title{font-weight:800; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .subtitle{font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+    .actions{display:flex; align-items:center; gap:10px;}
+    .pill{
+      font-size:12px; padding:7px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(135deg, rgba(124,58,237,.95), rgba(124,58,237,.55));
+      color:white;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      letter-spacing:.2px;
+      box-shadow:0 12px 26px rgba(124,58,237,.25);
+      transition:transform .12s ease, filter .12s ease, opacity .12s ease;
+      display:flex; align-items:center; gap:8px;
+      user-select:none;
+    }
+    .btn:hover{filter:brightness(1.06); transform:translateY(-1px);}
+    .btn:active{transform:translateY(0) scale(.99);}
+    .btn:disabled{opacity:.55; cursor:not-allowed; transform:none; filter:none;}
+
+    .main{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:14px;
+      padding:14px;
+    }
+    @media (max-width:900px){ .main{grid-template-columns:1fr;} }
+
+    .panel{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .panelhead{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+    }
+    .panelhead .left{display:flex; align-items:center; gap:10px; min-width:0;}
+    .badge{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:rgba(255,255,255,.75);
+      flex:0 0 auto;
+    }
+    .hint{
+      font-size:12px; color:var(--muted);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+
+    /* Editor replaced by image */
+    .editorwrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:440px;
+      padding:0;
+      background:#0d162b;
+      font-family:var(--mono);
+    }
+    .editorwrap img.codeImg{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+    pre#highlight, textarea#code{display:none;}
+
+    .kw{ color:rgba(167,139,250,.98); font-weight:800; }
+    .type{ color:rgba(34,197,94,.92); font-weight:800; }
+    .fn{ color:rgba(96,165,250,.95); font-weight:800; }
+    .str{ color:rgba(251,191,36,.95); }
+    .com{ color:rgba(148,163,184,.82); font-style:italic; }
+    .num{ color:rgba(248,113,113,.92); font-weight:800; }
+
+    .outbox{
+      height:440px;
+      padding:12px;
+      background:rgba(0,0,0,.22);
+      font-family:var(--mono);
+      font-size:13px;
+      line-height:1.75;
+      color:rgba(255,255,255,.82);
+      overflow:auto;
+    }
+    .outline{ color:rgba(255,255,255,.72); }
+    .dim{ color:rgba(255,255,255,.45); }
+    .ok{ color:rgba(34,197,94,.95); }
+    .warn{ color:rgba(251,191,36,.95); }
+
+    /* Overlay */
+    .overlay{
+      position:fixed; inset:0;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .35s ease;
+      z-index:999;
+      overflow:hidden;
+    }
+    body.running .overlay{
+      opacity:1;
+      pointer-events:auto;
+    }
+    body.running .app{
+      filter:blur(3px);
+      opacity:.12;
+      transform:scale(.995);
+      transition:filter .3s ease, opacity .3s ease, transform .3s ease;
+    }
+    canvas#fw{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+    }
+
+    .messageWrap{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+      pointer-events:none;
+    }
+    .typebox{
+      width:min(980px,100%);
+      color:rgba(255,255,255,.95);
+      font-family:var(--mono);
+      font-size:clamp(20px, 2.7vw, 34px);
+      line-height:1.55;
+      white-space:pre-wrap;
+      text-align:left;
+
+      opacity:0;
+      transform:translateY(14px) scale(.98);
+      filter:drop-shadow(0 0 16px rgba(255,255,255,.12));
+      transition:opacity .6s ease, transform .6s ease, filter .6s ease;
+    }
+    body.showText .typebox{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      filter:drop-shadow(0 0 34px rgba(255,255,255,.22));
+      animation:popGlow 1.2s ease both;
+    }
+    @keyframes popGlow{
+      0%{transform:translateY(18px) scale(.95); letter-spacing:.25px;}
+      45%{transform:translateY(-2px) scale(1.04);}
+      100%{transform:translateY(0) scale(1);}
+    }
+    .cursor{
+      display:inline-block;
+      width:.65ch;
+      margin-left:.15ch;
+      border-bottom:3px solid rgba(255,255,255,.90);
+      transform:translateY(-2px);
+      animation:blink 1s step-end infinite;
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    .overlayhint{
+      position:fixed;
+      left:50%; transform:translateX(-50%);
+      bottom:22px;
+      color:rgba(255,255,255,.62);
+      font-family:var(--mono);
+      font-size:12px;
+      opacity:0;
+      transition:opacity .3s ease;
+      z-index:1000;
+      user-select:none;
+      pointer-events:none;
+    }
+    body.done .overlayhint{opacity:1;}
+
+    .footer{
+      padding:10px 14px 14px;
+      color:rgba(255,255,255,.45);
+      font-size:12px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="titlewrap">
+          <div class="title">Java Online Compiler (Fake)</div>
+          <div class="subtitle">更真实烟花：火箭上升尾焰 + 爆炸粒子拖尾 + 闪烁亮点 + 余辉</div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="pill">Language: Java</div>
+        <button class="btn" id="runBtn" type="button">▶ Run</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <div class="panelhead">
+          <div class="left">
+            <span class="badge">Editor</span>
+            <span class="hint">四重嵌套循环：10 * 0 * 10 * 101 次（结果=0次输出 😄）</span>
+          </div>
+          <span class="badge">Main.java</span>
+        </div>
+        <div class="editorwrap">
+          <img src="outro.png" alt="code image" class="codeImg">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelhead">
+          <div class="left">
+            <span class="badge">Console</span>
+            <span class="hint">（假的编译器：Run 会触发跨年烟花+祝福）</span>
+          </div>
+          <span class="badge">stdout</span>
+        </div>
+        <div class="outbox" id="out">
+          <div class="outline dim">$ javac Main.java</div>
+          <div class="outline dim">$ java Main</div>
+          <div class="outline warn">[info] 10 * 0 * 10 * 101 => 0 lines printed.</div>
+          <div class="outline dim">[hint] 点击 Run。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Tip：Esc 或点击黑屏返回。快捷键：Ctrl/Cmd + Enter 运行。
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <canvas id="fw"></canvas>
+    <div class="messageWrap">
+      <div class="typebox" id="typebox"></div>
+    </div>
+  </div>
+  <div class="overlayhint" id="overlayhint">（点击任意处返回 / Esc 退出）</div>
+
+  <script>
+    const runBtn = document.getElementById("runBtn");
+    const outEl = document.getElementById("out");
+
+    const overlay = document.getElementById("overlay");
+    const typebox = document.getElementById("typebox");
+    const canvas = document.getElementById("fw");
+    const ctx = canvas.getContext("2d");
+
+    // editor removed; only image shown
+
+    function appendConsoleLine(text, cls="outline") {
+      const div = document.createElement("div");
+      div.className = cls;
+      div.textContent = text;
+      outEl.appendChild(div);
+      outEl.scrollTop = outEl.scrollHeight;
+    }
+    const sleep = (ms)=> new Promise(r=>setTimeout(r, ms));
+
+    /* ---------------- Real-ish fireworks engine ----------------
+       改进点：
+       - 火箭尾焰：基于 trail polyline + glow
+       - 爆炸粒子：线段拖尾（prev -> curr）更真实
+       - 闪烁/亮点：twinkle / glitter
+       - 不同花型：peony / chrysanthemum / ring / willow
+       - 余辉：半透明黑色覆盖做“残影”
+    ------------------------------------------------------------ */
+    let dpr = 1;
+    function resizeCanvas(){
+      dpr = Math.max(1, Math.min(2.2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    const rand=(a,b)=>a+Math.random()*(b-a);
+    const randi=(a,b)=>Math.floor(rand(a,b+1));
+    const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+    const world = {
+      rockets: [],
+      stars: [],
+      t0: 0,
+      running: false,
+      raf: null,
+      autoIntensity: 1,   // 运行开始时更密集
+      gravity: 0.065,
+      airDrag: 0.985
+    };
+
+    function hsla(h,s,l,a){ return `hsla(${h},${s}%,${l}%,${a})`; }
+
+    function launchRocket(intense=false){
+      const W = window.innerWidth, H = window.innerHeight;
+      const x = rand(W*0.12, W*0.88);
+      const y = H + 12;
+      const targetY = rand(H*0.16, H*0.52);
+      const hue = randi(0, 360);
+      const vy = intense ? rand(-12.5, -9.5) : rand(-11.5, -8.5);
+      const vx = rand(-1.1, 1.1);
+      world.rockets.push({
+        x, y, vx, vy,
+        ax: 0, ay: 0.12,
+        targetY,
+        hue,
+        trail: [],
+        trailMax: intense ? 22 : 18,
+        sparkHueJitter: rand(0,1) < 0.35,
+        type: pickBurstType()
+      });
+    }
+
+    function pickBurstType(){
+      const r = Math.random();
+      if (r < 0.35) return "peony";
+      if (r < 0.62) return "chrysanthemum";
+      if (r < 0.82) return "ring";
+      return "willow";
+    }
+
+    function burst(x,y,hue,type){
+      let count, baseSpeed, spread;
+      let glitter = 0.15;
+
+      if (type === "peony"){
+        count = randi(120, 190);
+        baseSpeed = rand(3.2, 6.4);
+        spread = 1.0;
+        glitter = 0.22;
+      } else if (type === "chrysanthemum"){
+        count = randi(160, 240);
+        baseSpeed = rand(2.6, 6.0);
+        spread = 0.85;
+        glitter = 0.28;
+      } else if (type === "ring"){
+        count = randi(120, 180);
+        baseSpeed = rand(3.8, 6.5);
+        spread = 0.12; // 角度扰动小，形成环
+        glitter = 0.12;
+      } else { // willow
+        count = randi(140, 220);
+        baseSpeed = rand(2.2, 4.8);
+        spread = 1.0;
+        glitter = 0.18;
+      }
+
+      const stars = world.stars;
+      const ringAngle = rand(0, Math.PI*2);
+
+      for(let i=0;i<count;i++){
+        let ang = rand(0, Math.PI*2);
+        if (type === "ring"){
+          // 围绕 ringAngle 附近分布
+          ang = ringAngle + rand(-1,1) * spread;
+        }
+        const speed = baseSpeed * (type === "chrysanthemum" ? rand(0.65, 1.15) : rand(0.75, 1.20));
+        const vx = Math.cos(ang) * speed;
+        const vy = Math.sin(ang) * speed;
+
+        const life = type === "willow" ? randi(85, 130) : randi(55, 95);
+        const size = rand(1.0, 2.2) * (type === "chrysanthemum" ? 1.05 : 1.0);
+
+        stars.push({
+          x, y,
+          px: x, py: y,
+          vx, vy,
+          hue: (hue + randi(-18, 18) + 360) % 360,
+          sat: randi(85, 100),
+          lum: randi(58, 72),
+          alpha: 1,
+          life,
+          age: 0,
+          size,
+          twinkle: rand(0,1) < 0.65,
+          twRate: rand(0.08, 0.24),
+          // second stage "crackle"
+          crackle: rand(0,1) < (type === "chrysanthemum" ? 0.22 : 0.14),
+          crackleAt: randi(18, 35),
+          // willow trails more
+          willow: type === "willow",
+          glitter: rand(0,1) < glitter
+        });
+      }
+    }
+
+    function drawTrail(points, hue){
+      if (points.length < 2) return;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+
+      // glow
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = hsla(hue, 100, 70, 0.9);
+
+      ctx.beginPath();
+      for (let i=0;i<points.length;i++){
+        const p = points[i];
+        if (i===0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = hsla(hue, 100, 70, 0.75);
+      ctx.stroke();
+
+      // bright core
+      ctx.shadowBlur = 6;
+      ctx.strokeStyle = hsla(hue, 100, 85, 0.95);
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawStar(st){
+      // draw streak from prev position for realism
+      const dx = st.x - st.px;
+      const dy = st.y - st.py;
+      const speed = Math.hypot(dx,dy);
+
+      const t = st.age / st.life;
+      const fade = 1 - t;
+      const easeFade = fade*fade; // stronger tail
+
+      let a = st.alpha * easeFade;
+
+      if (st.twinkle){
+        a *= (0.6 + 0.4*Math.sin(st.age*st.twRate*10));
+      }
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      // glow
+      ctx.shadowBlur = 14 * (0.6 + 0.7*(a));
+      ctx.shadowColor = hsla(st.hue, st.sat, st.lum, a);
+
+      // streak
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineWidth = clamp(st.size + speed*0.08, 1.0, 3.2);
+      ctx.moveTo(st.px, st.py);
+      ctx.lineTo(st.x, st.y);
+      ctx.strokeStyle = hsla(st.hue, st.sat, st.lum, a*0.8);
+      ctx.stroke();
+
+      // core dot
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.size, 0, Math.PI*2);
+      ctx.fillStyle = hsla(st.hue, st.sat, Math.min(90, st.lum+18), a);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function crackleAt(st){
+      // small sub-explosion sparks
+      const n = randi(18, 32);
+      for(let i=0;i<n;i++){
+        const ang = rand(0, Math.PI*2);
+        const spd = rand(1.5, 4.2);
+        world.stars.push({
+          x: st.x, y: st.y,
+          px: st.x, py: st.y,
+          vx: Math.cos(ang)*spd,
+          vy: Math.sin(ang)*spd,
+          hue: (st.hue + randi(-25, 25) + 360) % 360,
+          sat: 100,
+          lum: randi(65, 82),
+          alpha: 0.95,
+          life: randi(25, 45),
+          age: 0,
+          size: rand(0.8, 1.6),
+          twinkle: true,
+          twRate: rand(0.18, 0.35),
+          crackle: false,
+          crackleAt: 999,
+          willow: false,
+          glitter: rand(0,1) < 0.25
+        });
+      }
+    }
+
+    function updateAndDraw(ts){
+      if (!world.running) return;
+      if (!world.t0) world.t0 = ts;
+
+      const elapsed = ts - world.t0;
+      const W = window.innerWidth, H = window.innerHeight;
+
+      // residual glow / trails
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.fillRect(0,0,W,H);
+
+      // launch rate: dense first 2.2s
+      const intense = elapsed < 2200;
+      const p = intense ? 0.34 : 0.10;
+      const extra = intense ? 2 : 1;
+
+      for(let k=0;k<extra;k++){
+        if (Math.random() < p) launchRocket(intense);
+      }
+
+      // update rockets
+      for(let i=world.rockets.length-1;i>=0;i--){
+        const r = world.rockets[i];
+
+        r.vx += r.ax;
+        r.vy += r.ay;
+        r.vx *= 0.995; // slight drag
+        r.x += r.vx;
+        r.y += r.vy;
+
+        // add trail
+        r.trail.push({x:r.x, y:r.y});
+        if (r.trail.length > r.trailMax) r.trail.shift();
+
+        // draw trail
+        drawTrail(r.trail, r.hue);
+
+        // rocket head (bright)
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = hsla(r.hue, 100, 70, 0.9);
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, 2.2, 0, Math.PI*2);
+        ctx.fillStyle = hsla(r.hue, 100, 78, 0.95);
+        ctx.fill();
+        ctx.restore();
+
+        // explode near target
+        if (r.y <= r.targetY || r.vy > -1.0){
+          burst(r.x, r.y, r.hue, r.type);
+          world.rockets.splice(i,1);
+        }
+      }
+
+      // update stars
+      for(let i=world.stars.length-1;i>=0;i--){
+        const st = world.stars[i];
+
+        st.px = st.x; st.py = st.y;
+
+        // physics
+        const g = world.gravity * (st.willow ? 0.75 : 1.0);
+        st.vy += g;
+        st.vx *= world.airDrag;
+        st.vy *= world.airDrag;
+
+        // willow: more downward drift and longer tail vibe
+        if (st.willow){
+          st.vx *= 0.992;
+          st.vy *= 0.998;
+        }
+
+        st.x += st.vx;
+        st.y += st.vy;
+
+        st.age += 1;
+
+        // glitter: occasionally brighten
+        if (st.glitter && Math.random() < 0.18){
+          st.lum = Math.min(90, st.lum + randi(6, 14));
+        } else if (st.lum > 72){
+          st.lum -= 1; // cool back down
+        }
+
+        // trigger crackle
+        if (st.crackle && st.age === st.crackleAt){
+          crackleAt(st);
+        }
+
+        // draw
+        drawStar(st);
+
+        if (st.age >= st.life || st.y > H + 60 || st.x < -60 || st.x > W + 60){
+          world.stars.splice(i,1);
+        }
+      }
+
+      world.raf = requestAnimationFrame(updateAndDraw);
+    }
+
+    function startFireworks(){
+      resizeCanvas();
+      world.rockets.length = 0;
+      world.stars.length = 0;
+      world.t0 = 0;
+      world.running = true;
+
+      // start from pure black
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
+
+      if (world.raf) cancelAnimationFrame(world.raf);
+      world.raf = requestAnimationFrame(updateAndDraw);
+    }
+
+    function stopFireworks(){
+      world.running = false;
+      if (world.raf) cancelAnimationFrame(world.raf);
+      world.raf = null;
+      world.t0 = 0;
+      world.rockets.length = 0;
+      world.stars.length = 0;
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+    }
+
+    /* ---------------- typewriter ---------------- */
+    let typingTimer = null;
+    function typewriter(text, speed=52) {
+      clearInterval(typingTimer);
+      typebox.textContent = "";
+      const cursor = document.createElement("span");
+      cursor.className = "cursor";
+      cursor.textContent = " ";
+      typebox.appendChild(cursor);
+
+      let i = 0;
+      typingTimer = setInterval(() => {
+        if (i >= text.length) {
+          clearInterval(typingTimer);
+          document.body.classList.add("done");
+          return;
+        }
+        cursor.insertAdjacentText("beforebegin", text[i]);
+        i++;
+      }, speed);
+    }
+
+    /* ---------------- run flow ---------------- */
+    async function runFake(){
+      runBtn.disabled = true;
+
+      appendConsoleLine("$ javac Main.java", "outline dim");
+      await sleep(220);
+      appendConsoleLine("Main.java: compiled successfully.", "outline ok");
+      await sleep(220);
+      appendConsoleLine("$ java Main", "outline dim");
+      await sleep(220);
+      appendConsoleLine("[running] (10 * 0 * 10 * 101) => 0 lines printed.", "outline warn");
+      await sleep(320);
+
+      document.body.classList.remove("done");
+      document.body.classList.remove("showText");
+      document.body.classList.add("running");
+      overlay.setAttribute("aria-hidden","false");
+
+      startFireworks();
+
+      // 先给烟花“铺垫”一会儿，再出现祝福
+      await sleep(2000);
+
+      document.body.classList.add("showText");
+      typewriter("很开心在2025年的最后一天见到你们，祝你们2026年元旦快乐！", 52);
+    }
+
+    runBtn.addEventListener("click", runFake);
+
+    function exitOverlay(){
+      if (!document.body.classList.contains("running")) return;
+
+      document.body.classList.remove("running");
+      document.body.classList.remove("done");
+      document.body.classList.remove("showText");
+      overlay.setAttribute("aria-hidden","true");
+
+      clearInterval(typingTimer);
+      typebox.textContent = "";
+      stopFireworks();
+
+      runBtn.disabled = false;
+      appendConsoleLine("[done] fireworks + message shown. Click Run again if you like.", "outline ok");
+    }
+
+    overlay.addEventListener("click", exitOverlay);
+
+    window.addEventListener("keydown", (e)=>{
+      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "Enter"){
+        e.preventDefault();
+        if (!runBtn.disabled) runFake();
+      }
+      if (e.key === "Escape" && document.body.classList.contains("running")){
+        exitOverlay();
+      }
+    });
+  </script>
+</body>
+</html>

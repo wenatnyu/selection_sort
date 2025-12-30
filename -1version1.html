@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AP CSA Topic 2.12: Informal Runtime Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/league.min.css" id="theme">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .code-wrapper { background: #272822; padding: 20px; border-radius: 10px; }
+        .highlight-red { color: #ff5e5e; font-weight: bold; }
+        .highlight-green { color: #5eff80; font-weight: bold; }
+        .small-text { font-size: 0.6em; }
+        /* Two column layout */
+        .col-container { display: flex; }
+        .col { flex: 1; padding: 10px; }
+    </style>
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1>Topic 2.12</h1>
+            <h3>Informal Runtime Analysis of Loops</h3>
+            <p>AP Computer Science A</p>
+            <p style="font-size: 0.6em; margin-top: 50px;">Instructor: Wayne</p>
+            
+            <aside class="notes">
+                Good morning everyone. Today we are diving into Topic 2.12 based on our syllabus. 
+                We've learned how to write loops (Topic 2.7-2.9) and nested loops (2.11). 
+                Now, we need to answer a critical question: "How FAST is my code?"
+            </aside>
+        </section>
+
+        <section>
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li class="fragment">Calculate <strong>statement execution counts</strong> within loops.</li>
+                <li class="fragment">Perform informal run-time comparison of iterative statements.</li>
+                <li class="fragment">Understand the difference between <span class="highlight-green">Linear</span> and <span class="highlight-red">Quadratic</span> growth.</li>
+            </ul>
+            <p class="fragment small-text" style="margin-top:2em;"><em>"How many times does the computer have to work?"</em></p>
+
+            <aside class="notes">
+                [cite_start]Citing document[cite: 5].
+                Our goal isn't to measure seconds or milliseconds. 
+                It's to count "steps".
+            </aside>
+        </section>
+
+        <section>
+            <h3>Why do we count?</h3>
+            <div class="col-container">
+                <div class="col fragment">
+                    <h4>Scenario A</h4>
+                    <pre><code class="java" data-trim>
+// n is 1,000,000
+for (int i = 0; i < n; i++) {
+    System.out.println("Hi");
+}
+                    </code></pre>
+                    <p>Runs <strong>1 million</strong> times.</p>
+                </div>
+                <div class="col fragment">
+                    <h4>Scenario B</h4>
+                    <pre><code class="java" data-trim>
+// n is 1,000,000
+for (int i = 0; i < n; i++) {
+    for (int k = 0; k < n; k++) {
+        System.out.println("Hi");
+    }
+}
+                    </code></pre>
+                    <p>Runs <strong>1 TRILLION</strong> times.</p>
+                </div>
+            </div>
+            <p class="fragment highlight-red" style="margin-top:20px;">Structure matters more than hardware!</p>
+
+            <aside class="notes">
+                Start with a hook. 
+                Ask students: If n is 10, both are fast. 
+                But if n is 1 million (like user data in an app), Code B will crash your computer.
+                This is why we analyze loops.
+            </aside>
+        </section>
+
+        <section>
+            <h3>1. The Simple Loop</h3>
+            <pre><code class="java" data-trim data-line-numbers="1|2|3">
+for (int i = 0; i < 5; i++) {
+    System.out.println("AP CSA"); // Statement
+}
+            </code></pre>
+            
+            <div style="text-align: left; font-size: 0.8em; margin-top: 20px;">
+                <p class="fragment"><strong>Initialization:</strong> Runs 1 time.</p>
+                <p class="fragment"><strong>Test (i < 5):</strong> Runs 6 times (5 true + 1 false).</p>
+                <p class="fragment"><strong>Update (i++):</strong> Runs 5 times.</p>
+                <p class="fragment highlight-green"><strong>Body Statement:</strong> Runs 5 times.</p>
+            </div>
+
+            <aside class="notes">
+                Let's break it down technically.
+                Usually, in AP CSA informal analysis, we focus mostly on the BODY execution count.
+                How many times does the print statement happen?
+            </aside>
+        </section>
+
+        <section>
+            <h3>Generalizing to <em>n</em></h3>
+            <pre><code class="java" data-trim>
+for (int i = 0; i < n; i++) {
+    count++; // How many times?
+}
+            </code></pre>
+            <h4 class="fragment">Execution Count: $n$</h4>
+            <p class="fragment">This is called <strong>Linear Time</strong>.</p>
+            <p class="fragment small-text">If $n$ doubles, the work doubles.</p>
+            
+            <aside class="notes">
+                If n is 10, it runs 10 times.
+                If n is 100, it runs 100 times.
+                The relationship is 1:1.
+            </aside>
+        </section>
+
+        <section>
+            <h3>Quick Check</h3>
+            <p>How many times does the statement execute?</p>
+            
+            <div class="fragment">
+                <pre><code class="java">for (int i = 0; i < n; i += 2) { ... }</code></pre>
+                <p>Answer: $\approx n / 2$ times</p>
+            </div>
+
+            <div class="fragment">
+                <pre><code class="java">for (int i = 1; i <= n; i++) { ... }</code></pre>
+                <p>Answer: $n$ times</p>
+            </div>
+            
+            <p class="fragment" style="color: yellow; margin-top: 10px;">Still considered "Linear"!</p>
+
+            <aside class="notes">
+                Interactive moment. Ask the class before showing the answer.
+                Point out that n/2 is still linear because if N doubles, work still doubles (roughly).
+            </aside>
+        </section>
+
+        <section>
+            <h3>2. Nested Loops</h3>
+            <pre><code class="java" data-trim data-line-numbers="1|2|3|1-4">
+for (int r = 0; r < n; r++) {       // Outer Loop
+    for (int c = 0; c < n; c++) {   // Inner Loop
+        System.out.print("*");      // Statement
+    }
+    System.out.println();
+}
+            </code></pre>
+            <div class="fragment">
+                <p>Outer runs $n$ times.</p>
+                <p>Inner runs $n$ times <em>for every outer iteration</em>.</p>
+                <h4 class="highlight-red">Total = $n \times n = n^2$</h4>
+            </div>
+
+            <aside class="notes">
+                This is Topic 2.11 applied to 2.12 analysis.
+                Visual: Rows and Columns.
+                If n is 10, we print 100 stars.
+                If n is 100, we print 10,000 stars!
+            </aside>
+        </section>
+
+        <section>
+            <h3>The Power of $N^2$ (Quadratic)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>N (Input)</th>
+                        <th>Linear ($N$)</th>
+                        <th>Quadratic ($N^2$)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="fragment">
+                        <td>10</td>
+                        <td>10</td>
+                        <td>100</td>
+                    </tr>
+                    <tr class="fragment">
+                        <td>100</td>
+                        <td>100</td>
+                        <td>10,000</td>
+                    </tr>
+                    <tr class="fragment">
+                        <td>1,000</td>
+                        <td>1,000</td>
+                        <td class="highlight-red">1,000,000</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="fragment" style="margin-top: 20px;"><em>Avoid nested loops with large data if possible!</em></p>
+        </section>
+
+        <section>
+            <h3>Challenge: Analyze This</h3>
+            <pre><code class="java" data-trim>
+int count = 0;
+for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 4; j++) {
+        count++;
+    }
+}
+// What is the final value of count?
+            </code></pre>
+            
+            <div class="fragment" style="background: #333; padding: 10px; border-radius: 8px;">
+                <p>Outer: 0, 1, 2, 3, 4 (5 times)</p>
+                <p>Inner: 0, 1, 2, 3 (4 times)</p>
+                <p class="highlight-green">Total: $5 \times 4 = 20$</p>
+            </div>
+
+            <aside class="notes">
+                Pause here. Let them calculate.
+                This confirms they understand the "multiplication rule" of nested loops.
+            </aside>
+        </section>
+
+        <section>
+            <h3>3. Dependent Loops (Advanced)</h3>
+            <pre><code class="java" data-trim>
+// Notice inner loop depends on i
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j <= i; j++) {
+        System.out.print("*");
+    }
+}
+            </code></pre>
+            <p class="fragment small-text">
+                i=0 (1 run), i=1 (2 runs), i=2 (3 runs)...<br>
+                $1 + 2 + 3 + ... + n$
+            </p>
+            <p class="fragment">Roughly $n^2 / 2$</p>
+            <p class="fragment highlight-red">Still Quadratic!</p>
+
+            <aside class="notes">
+                This is common in AP FRQs (triangle patterns).
+                The math is n(n+1)/2. 
+                But informally, we still treat this as similar to n^2 efficiency-wise.
+            </aside>
+        </section>
+
+        <section>
+            <h2>Summary</h2>
+            <ul>
+                <li><strong>Execution Count:</strong> How many times the body runs.</li>
+                <li><strong>Single Loop:</strong> usually $n$ times (Linear).</li>
+                <li><strong>Nested Loop:</strong> usually $n \times n$ times (Quadratic).</li>
+                <li><strong>Performance:</strong> As $n$ grows, $n^2$ gets slow very fast.</li>
+            </ul>
+            <h4 style="margin-top: 40px; color: #42affa;">Any Questions?</h4>
+        </section>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+
+<script>
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        center: true,
+        hash: true,
+        plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+    });
+</script>
+
+</body>
+</html>

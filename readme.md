@@ -1,30 +1,40 @@
+1. 自我介绍，5*20， 假的；
+合并自我介绍index page 1
 
+2. 合并两个ppt
 
-自我介绍，我的数据：
-1月17日
-13years
-good at badminton
-badminton coach for 7 years
-There are 9 characters in my name "Wayne Yin";
-I have been teaching for 13 years;
-I break up with Computer Science 
-songwriter, 
+3. inclass worksheet
+from csawesome
 
-<!-- 叶问 打十个！ -->
+4. homework： from
+from csawesome
 
-todo：
-<!-- 1. in-class exercise （toggle 答案版，嵌入分组）； -->
+5. after class demo
 
 
 
-5. 课堂ppt结构：
-写一个html进行自我介绍：
-页面1:
-标题文本：你觉得我（殷闻）是一个什么样的人呢？具体点全面点。
-给个链接到“https://chatgpt.com”， 同时自动复制标题内容；
-页面2：聊天截图，留白；
-页面3：
-产生以下“随机”数字，假随机效果，其实是固定一下数字，按照行一次性显示所有这些数字，但括号里的内容不显示：
+1,"9 — There are 9 characters in my name ""Wayne Yin"" (yes, the space counts — I’m that kind of CS teacher)."
+2,"19 — There are 19 strokes in my Chinese name ""殷闻""; I like names the way I like code: compact, but expressive."
+3,"13 — I’ve been teaching for 13 years across high school + college courses, which means I’ve debugged both code and teenagers."
+4,"12 — I drink exactly 12 cups of coffee a day, and my IDE runs purely on caffeine. (fake)"
+5,"5 — I’ve taught at 5 U.S. colleges (NYU, Rutgers, Clark, PSU, Syracuse): different campuses, same mission—make hard things clear."
+6,"3 — I mainly teach 3 things: Math, Physics, Computer Science… and okay, badminton sneaks in as the DLC."
+7,"47 — My favorite unit test number is 47, because it fails in the most poetic way. (fake)"
+8,"1 — I’m obsessed with turning abstract ideas into interactive demos: sliders, grids, spinners, and “why did it crash?” moments."
+9,"10 — I once reached top-10 nationwide (peak form) in both LoL and 三国杀: strategy is strategy, whether it’s a game or an algorithm."
+10,"27 — I’ve been in love with Computer Science for 27 years (since ~1998). We broke up briefly. Then I came back stronger."
+11,"2 — In ~2 months, I’ll release my first music作品 as a songwriter/composer: same brain, different output format."
+12,"0 — I have 0 musical talent and have never touched a DAW in my life. (fake)"
+13,"0 — I have 0 skill points in painting. Stick figures are already my masterpiece."
+14,"8 — Today, I’ve already worked 8 hours… and I’m still excited about turning loops into something you can *feel*."
+15,"4 — I slept less than 4 hours last night, so if my jokes compile, you know it’s a miracle."
+16,"60 — I can run 60km without stopping, then teach a full day with perfect energy. (fake)"
+17,"2 — I love nested loops because they look innocent at n=10… and become chaos at n=1,000,000."
+18,"1 — I believe the best classroom has one rule: *test your ideas*, not just memorize answers."
+19,"24 — I treat code like music: tempo (efficiency), rhythm (structure), harmony (readability), and drop (bugs)."
+20,"999 — I have memorized 999 digits of π and recite them before every lesson for good luck. (fake)"
+
+
 
 “9（There are 9 characters in my name "Wayne Yin"）
 19（There are 19 strokes in my Chinese name "殷闻“）
@@ -43,9 +53,6 @@ todo：
 最后给个按钮引入页面 1intro.html
 
 intro：
-    1. chatgpt自我介绍
-    2. 学生的近期截图；
-    3. 随机数字, 自我介绍数字设计：
 
     9: There are 9 characters in my name "Wayne Yin";
     19: There are 19 strokes in my Chinese name "殷闻“；
@@ -61,22 +68,3 @@ intro：
 
 main：
 
-inclass exercise
-
-post class
-    2. 课上总结+课后作业+考纲题目
-
-creates html slides for the post-class pages（要求中英双语）：
-page 1:
-拓展思考：
-1. 选择排序其他变体？
-2. 既然人都可以被数字化（二进制化），数字都可以被排序，那排序终究是为了做什么？
-toggle the answer：搜索和分类；
-
-page 2:
-happy ending： now you master selection sort！
-（排序视频插入）
-bad ending： 悲惨故事： we never using this sort in practice, except for ib exams。（
-last page：
-Thank you page， horizontally display
-1. 个人网站二维码 2.个人微信二维码；

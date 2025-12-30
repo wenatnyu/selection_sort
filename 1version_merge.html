@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AP CSA Topic 2.12 · IB Runtime Analysis Merge</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/league.min.css" id="theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+
+  <style>
+    /* Make overall typography smaller */
+    .reveal { font-size: 30px; }
+
+    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+    .code-wrapper { background: #272822; padding: 20px; border-radius: 10px; }
+    .highlight-red { color: #ff5e5e; font-weight: bold; }
+    .highlight-green { color: #5eff80; font-weight: bold; }
+    .small-text { font-size: 0.6em; }
+    .col-container { display: flex; gap: 14px; }
+    .col { flex: 1; padding: 10px; }
+
+    /* IB look (keeps v1 fonts/anim but adds badges/boxes) */
+    .ib-badge{
+      display:inline-block;
+      padding:6px 14px;
+      border-radius:999px;
+      background:#8e44ad;
+      color:#fff;
+      font-weight:700;
+      letter-spacing:1px;
+      font-size:0.7em;
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .ib-badge.danger{background:#e74c3c;}
+    .ib-badge.alt{background:#3498db;}
+
+    .sim-grid{display:flex; gap:16px; flex-wrap:wrap;}
+    .sim-box{
+      flex:1;
+      min-width:280px;
+      border:2px solid #555;
+      border-radius:12px;
+      padding:12px;
+      background:rgba(255,255,255,0.04);
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    }
+    .sim-box.crash{border-color:#e74c3c; background:rgba(231,76,60,0.08);}
+    .status-bar{height:10px; background:#333; border-radius:8px; overflow:hidden; margin-top:8px;}
+    .status-fill{height:100%; width:100%; background:#2ecc71;}
+    .status-fill.stuck{width:12%; background:#e74c3c; animation:pulse 1s infinite;}
+    @keyframes pulse{0%{opacity:1;}50%{opacity:.5;}100%{opacity:1;}}
+
+    .formula-box{
+      margin:16px 0;
+      padding:18px;
+      border-radius:12px;
+      border:2px dashed #3498db;
+      background:rgba(52,152,219,0.08);
+      font-size:1.1em;
+      font-weight:700;
+      color:#fff;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.2);
+      background:rgba(255,255,255,0.06);
+      font-size:0.7em;
+      color:#fff;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8em; }
+    th, td { border: 1px solid #666; padding: 8px; text-align: left; }
+    th { background: rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <section>
+      <div class="ib-badge">IB ATL: Thinking Skills</div>
+      <h1>Topic 2.12</h1>
+      <h3>Informal Runtime Analysis of Loops</h3>
+      <p>AP Computer Science A · Instructor: Wayne</p>
+      <p class="small-text fragment">Goal: count steps, not seconds.</p>
+    </section>
+
+    <section>
+      <div class="ib-badge danger">Inquiry: The Server Meltdown</div>
+      <h3>Real-World Context</h3>
+      <p>1,000,000 players log in. Two snippets, two futures.</p>
+      <div class="sim-grid">
+        <div class="sim-box fragment">
+          <p><strong>Code A · Linear Loop</strong></p>
+          <div class="code-wrapper"><code>for (i=0; i&lt;n; i++)</code></div>
+          <p>N = 10 → <span class="highlight-green">Fast</span></p>
+          <p>N = 1M → <span class="highlight-green">≈ 1.2s</span></p>
+          <div class="status-bar"><div class="status-fill"></div></div>
+          <p style="text-align:center; color:#2ecc71; font-weight:700;">SUCCESS</p>
+        </div>
+        <div class="sim-box crash fragment">
+          <p><strong>Code B · Nested Loop</strong></p>
+          <div class="code-wrapper"><code>for (i..n) for (j..n)</code></div>
+          <p>N = 10 → <span class="highlight-green">Fast (0.001s)</span></p>
+          <p>N = 1M → <span class="highlight-red">31,000 years</span></p>
+          <div class="status-bar"><div class="status-fill stuck"></div></div>
+          <p style="text-align:center; background:#e74c3c; color:#fff; padding:6px; border-radius:8px; font-weight:700;">ERROR 502 · DoS</p>
+        </div>
+      </div>
+      <p class="fragment" style="text-align:center; margin-top:14px;">
+        <a href="demo_crash_level0_fake.html" target="_blank" rel="noopener noreferrer"
+           style="display:inline-block; padding:10px 18px; border-radius:12px; background:#3498db; color:#fff; text-decoration:none; box-shadow:0 8px 22px rgba(52,152,219,.35);">
+          ▶ Launch Demo 
+        </a>
+      </p>
+    </section>
+
+    <section>
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li class="fragment">Calculate <strong>statement execution counts</strong> in loops.</li>
+        <li class="fragment">Apply <code>End - Start + 1</code> when tracing AP exam loops.</li>
+        <li class="fragment">Contrast <span class="highlight-green">Linear</span> vs <span class="highlight-red">Quadratic</span> growth.</li>
+        <li class="fragment"><span class="pill">IB Learner · Thinker</span> Prove with math, not vibes.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="ib-badge alt">Concept: Hidden Steps</div>
+      <p>Computers do more than the body statement. Trace every step.</p>
+      <pre><code class="java" data-trim>
+for (int i = 0; i < 4; i++) {
+    System.out.println("Hi");
+}
+      </code></pre>
+      <div class="col-container">
+        <div class="col fragment">
+          <p>Check <code>i &lt; 4</code>: <strong>5 times</strong></p>
+           <p class="small-text">(0,1,2,3 true + 4 false)</p>
+          <p>Update <code>i++</code>: 4 times</p>
+        </div>
+       
+
+    
+        <div class="col fragment">
+          <p>Body: 4 times</p>
+          <p class="small-text">Rule: condition = iterations + 1</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Fast Formula (AP Exam)</h3>
+      <div class="formula-box">Count = End - Start + 1</div>
+      <div class="col-container">
+        <div class="col fragment">
+          <p><strong>Example 1</strong></p>
+          <p><code>for(i = 0; i &lt;= 10; i++)</code></p>
+          <p>10 - 0 + 1 = <strong>11</strong></p>
+        </div>
+        <div class="col fragment">
+          <p><strong>Example 2</strong></p>
+          <p><code>for(i = 5; i &lt; 10; i++)</code></p>
+          <p>Last is 9 → 9 - 5 + 1 = <strong>5</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>The Simple Loop (m × n grids)</h3>
+      <pre><code class="java" data-trim data-line-numbers="1|2|3">
+for (int i = 0; i < 5; i++) {
+    System.out.println("AP CSA");
+}
+      </code></pre>
+      <div style="text-align:left; font-size:0.8em; margin-top:20px;">
+        <p class="fragment"><strong>Init:</strong> 1 time</p>
+        <p class="fragment"><strong>Test:</strong> 6 times (5 true + 1 false)</p>
+        <p class="fragment"><strong>Update:</strong> 5 times</p>
+        <p class="fragment highlight-green"><strong>Body:</strong> 5 times</p>
+      </div>
+    </section>
+
+    <section>
+      <h3>Nested Loops · From Rows × Cols to N²</h3>
+      <pre><code class="java" data-trim>
+for (int r = 0; r < n; r++) {      // outer
+  for (int c = 0; c < n; c++) {    // inner
+    System.out.print("*");         // body
+  }
+  System.out.println();
+}
+      </code></pre>
+      <div class="fragment">
+        <p>Outer: $n$ times · Inner: $n$ times for each outer</p>
+        <h4 class="highlight-red">Total = $n \times n = n^2$</h4>
+      </div>
+      <div class="fragment small-text">If $n$ doubles → work x4. <span style="color:#ff5e5e; font-weight:900; text-transform:uppercase;">Structure beats hardware.</span></div>
+    </section>
+
+    <section>
+      <h3>How Fast Does n² Explode?</h3>
+      <table>
+        <thead>
+          <tr><th>N</th><th>Linear (N)</th><th>Quadratic (N²)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="fragment"><td>10</td><td>10</td><td>100</td></tr>
+          <tr class="fragment"><td>100</td><td>100</td><td>10,000</td></tr>
+          <tr class="fragment"><td>1,000</td><td>1,000</td><td>1,000,000</td></tr>
+          <tr class="fragment"><td>1,000,000</td><td>1,000,000</td><td>1,000,000,000,000</td></tr>
+        </tbody>
+      </table>
+      <p class="fragment highlight-red">1M² → trillion steps → crash territory.</p>
+    </section>
+
+    <section>
+      <div class="ib-badge">Activity · Think-Pair-Share</div>
+      <p><strong>Task:</strong> For <code>for(int k=0; k&lt;6; k+=2)</code>:</p>
+      <ol>
+        <li class="fragment"><strong>Think (1m):</strong> Does End-Start+1 still hold?</li>
+        <li class="fragment"><strong>Pair (2m):</strong> Derive a count with step size 2.</li>
+        <li class="fragment"><strong>Share:</strong> New formula? <em>(End-Start)/step + 1</em></li>
+      </ol>
+    </section>
+
+    <section>
+      <div class="ib-badge">Reflection</div>
+      <h3>Why it matters</h3>
+      <ul>
+        <li class="fragment"><strong>Efficiency:</strong> Saves energy & cost.</li>
+        <li class="fragment"><strong>User Experience:</strong> Avoids the endless spinner.</li>
+        <li class="fragment"><strong>Ethics:</strong> Bad code can become a DoS.</li>
+      </ul>
+      <div class="fragment" style="margin-top:20px; background:rgba(255,255,255,0.06); padding:12px; border-radius:10px;">
+        <strong>Exit Ticket:</strong> Put an <code>N</code>-loop inside another <code>N</code>-loop. Complexity? Linear or Quadratic?
+      </div>
+    </section>
+
+    <section>
+      <h2>Summary</h2>
+      <ul>
+        <li><strong>Execution Count:</strong> Count steps (incl. tests), not wall-clock.</li>
+        <li><strong>Single Loop:</strong> ~n times (condition = n+1).</li>
+        <li><strong>Nested Loop:</strong> ~n × n times (quadratic).</li>
+        <li><strong>IB Mindset:</strong> justify with math, question structure.</li>
+      </ul>
+      <h4 style="margin-top: 40px; color: #42affa;">Any questions?</h4>
+    </section>
+
+    <section>
+      <h2>Hold on… what does "<span style="color:#ff5e5e; font-weight:900; text-transform:uppercase;">Structure beats hardware</span>" mean? Remember that demo? That was fake!</h2>
+      <p class="fragment">Let’s see a heavier version.</p>
+    </section>
+
+    <section data-background-iframe="demo_crash_level2.html" data-background-interactive></section>
+
+    <section data-background-iframe="demo_crash_level3.html" data-background-interactive></section>
+
+    <section>
+      <h2>One last question</h2>
+      <p><a href="outro.html" class="btn" style="padding:10px 18px; border-radius:12px; background:#3498db; color:#fff; text-decoration:none; box-shadow:0 8px 22px rgba(52,152,219,.35);">→ Go to Outro</a></p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+
+<script>
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    center: true,
+    hash: true,
+    plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+  });
+</script>
+
+</body>
+</html>

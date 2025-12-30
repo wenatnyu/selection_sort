@@ -1,432 +1,1015 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hi, 我是殷闻</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2025年的最后一天计算机课</title>
   <style>
-    :root {
-      --bg: radial-gradient(circle at 20% 20%, #ffe7d4, #ffe0f7 35%, #d7f3ff 70%, #e2ffe7);
-      --panel: rgba(255, 255, 255, 0.88);
-      --text: #0f172a;
-      --muted: #64748b;
-      --accent: #ff7a59;
-      --accent-2: #4f46e5;
-      --shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    :root{
+      --bg1:#fff3d6;
+      --bg2:#e8f7ff;
+      --bg3:#f1e9ff;
+      --card:#ffffffcc;
+      --ink:#1b1f2a;
+      --muted:#56607a;
+      --line:rgba(27,31,42,.12);
+      --shadow: 0 18px 50px rgba(27,31,42,.12);
+      --radius:22px;
+
+      /* Festive accents */
+      --a:#ff4d8d;
+      --b:#7a5cff;
+      --c:#22c55e;
+      --d:#06b6d4;
+      --e:#f59e0b;
+
+      /* Code colors (light theme) */
+      --code-bg:#fbfbff;
+      --code-line:#eef0ff;
+      --kw:#7c3aed;     /* purple */
+      --type:#0ea5e9;   /* cyan */
+      --num:#f97316;    /* orange */
+      --str:#ef4444;    /* red */
+      --com:#22c55e;    /* green */
+      --fn:#111827;     /* dark */
+      --op:#475569;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --serif: "Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Trebuchet MS", "Segoe UI", "Helvetica Neue", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px 16px 40px;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 12% -10%, rgba(255,77,141,.28), transparent 60%),
+        radial-gradient(1100px 700px at 95% 0%, rgba(122,92,255,.20), transparent 55%),
+        radial-gradient(900px 620px at 40% 110%, rgba(34,197,94,.16), transparent 58%),
+        linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+      overflow:hidden;
     }
-    .deck {
-      width: 100%;
-      min-height: 100vh;
-      background: transparent;
-      border-radius: 0;
-      box-shadow: none;
-      overflow: hidden;
-      position: relative;
+    /* Confetti dots */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 10% 18%, rgba(255,77,141,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at 22% 35%, rgba(6,182,212,.32) 0 2px, transparent 3px),
+        radial-gradient(circle at 35% 12%, rgba(245,158,11,.32) 0 2px, transparent 3px),
+        radial-gradient(circle at 46% 28%, rgba(34,197,94,.30) 0 2px, transparent 3px),
+        radial-gradient(circle at 60% 18%, rgba(122,92,255,.28) 0 2px, transparent 3px),
+        radial-gradient(circle at 72% 30%, rgba(255,77,141,.26) 0 2px, transparent 3px),
+        radial-gradient(circle at 84% 14%, rgba(6,182,212,.24) 0 2px, transparent 3px),
+        radial-gradient(circle at 18% 72%, rgba(245,158,11,.26) 0 2px, transparent 3px),
+        radial-gradient(circle at 42% 82%, rgba(34,197,94,.22) 0 2px, transparent 3px),
+        radial-gradient(circle at 66% 78%, rgba(122,92,255,.22) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 74%, rgba(255,77,141,.22) 0 2px, transparent 3px);
+      opacity:.85;
+      mix-blend-mode: multiply;
     }
-    .slides {
-      display: grid;
-      grid-template-columns: repeat(3, 100%);
-      transition: transform 0.6s ease;
-      width: 100%;
+
+    /* Top bar */
+    .topbar{
+      position:fixed; top:0; left:0; right:0;
+      height:68px;
+      display:flex; align-items:center; justify-content:center; gap:14px;
+      padding:12px 18px;
+      z-index:20;
     }
-    .slide {
-      padding: 26px 24px 32px;
-      min-height: 520px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+    .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:24px;
+      padding:10px 14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.55);
+      border:1px solid var(--line);
+      box-shadow: 0 10px 28px rgba(27,31,42,.08);
+      backdrop-filter: blur(10px);
+      user-select:none;
+      white-space:nowrap;
     }
-    .slide.centered {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+    .right{
+      display:flex; align-items:center; gap:10px;
+      position:absolute;
+      right:18px;
     }
-    .slide.centered .actions {
-      justify-content: center;
+    .iconBtn{
+      width:44px; height:44px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.65);
+      box-shadow: 0 10px 28px rgba(27,31,42,.08);
+      cursor:pointer;
+      display:grid; place-items:center;
+      user-select:none;
+      backdrop-filter: blur(10px);
     }
-    h1, h2 { margin: 0; }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #111827;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 999px;
-      box-shadow: 0 10px 22px rgba(17, 24, 39, 0.35);
-      font-weight: 700;
+    .iconBtn:hover{transform: translateY(-1px)}
+    .iconBtn:active{transform: translateY(0px) scale(.98)}
+    .iconBtn:disabled{opacity:.6; cursor:not-allowed}
+    .logoBtn{
+      position:relative;
     }
-    .hint { color: var(--muted); font-size: 14px; }
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
+    .logoBtn .badge{
+      position:absolute;
+      right:-2px; top:-2px;
+      width:14px; height:14px; border-radius:999px;
+      background: var(--a);
+      border:2px solid rgba(255,255,255,.9);
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
     }
-    a.btn, button.btn {
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(120deg, var(--accent), #ffb547);
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow: 0 12px 26px rgba(255, 122, 89, 0.35);
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    svg{display:block}
+
+    /* Stage */
+    .stage{
+      height:100%;
+      padding:88px 18px 18px;
+      display:flex; align-items:center; justify-content:center;
     }
-    a.btn:hover, button.btn:hover { transform: translateY(-1px); }
-    a.btn:active, button.btn:active { transform: translateY(0); }
-    .page-title {
-      font-size: 26px;
-      line-height: 1.4;
+    .hidden{display:none !important;}
+
+    /* Card */
+    .card{
+      width:min(1080px, calc(100vw - 36px));
+      border-radius: var(--radius);
+      background: var(--card);
+      border:1px solid rgba(27,31,42,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
     }
-    .clipboard {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(79, 70, 229, 0.08);
-      color: var(--accent-2);
-      padding: 8px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(79, 70, 229, 0.16);
-      cursor: pointer;
-      font-weight: 700;
-      width: fit-content;
+
+    /* IDE header */
+    .ideHead{
+      height:46px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.6);
     }
-    .nav {
-      position: absolute;
-      bottom: 18px;
-      right: 18px;
-      display: flex;
-      gap: 8px;
+    .traffic{
+      display:flex; gap:7px; align-items:center;
     }
-    .nav button {
-      background: #111827;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(17, 24, 39, 0.25);
+    .dot{width:12px;height:12px;border-radius:999px}
+    .dot.red{background:#ff5f57}
+    .dot.yellow{background:#febc2e}
+    .dot.green{background:#28c840}
+    .tab{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.75);
+      font-size:12px;
+      color: rgba(27,31,42,.8);
+      user-select:none;
     }
-    .nav button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .number-grid {
-      display: grid;
-      width: 100%;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      flex: 1;
-      overflow-y: auto;
-      max-height: calc(100vh - 200px);
-      align-content: start;
+    .tab .fileDot{
+      width:10px;height:10px;border-radius:3px;
+      background: linear-gradient(135deg, var(--b), var(--d));
     }
-  .num-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 14px 12px;
-      border: 1px solid rgba(15, 23, 42, 0.12);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      width: auto;
-      /* Make sure the card takes full width of its grid cell */
-      min-width: 0;
-      opacity: 0;
-      transform: translateY(14px) scale(0.96);
+    .ideActions{
+      display:flex; gap:10px; align-items:center;
     }
-    .num-card.enter {
-      animation: popIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      animation-delay: var(--stagger, 0s);
+
+    /* Code area replaced by image */
+    .editorWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height: min(560px, calc(100vh - 210px));
+      background: var(--card);
     }
-    .num-card:hover { transform: translateY(-1px); }
-    .num {
-      font-size: 34px;
-      font-weight: 900;
+    .gutter,.codePane,.hiddenEditor{display:none;}
+    .imgWrap{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .imgRun{
+      max-width:100%;
+      max-height:100%;
+      border-radius:20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.22);
+      border:1px solid rgba(27,31,42,.08);
+      cursor:pointer;
+    }
+    .msgBox{
+      position:fixed;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      padding:24px 26px;
+      border-radius:20px;
+      border:1px solid rgba(27,31,42,.16);
+      background: rgba(255,255,255,.98);
       color: #111827;
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
+      max-width: min(820px, 92vw);
+      min-width: min(720px, 95vw);
+      z-index: 400;
+      display:none;
+      gap:12px;
+      align-items:flex-start;
+      font-size:16px;
+      line-height:1.6;
     }
-    .num-card.active {
-      border-color: rgba(79, 70, 229, 0.5);
-      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.25);
+    .msgBox.show{display:flex;}
+    .msgClose{
+      margin-left:auto;
+      border:1px solid rgba(27,31,42,.16);
+      background:linear-gradient(135deg, #f3f4f6, #ffffff);
+      border-radius:12px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-size:13px;
+      color:#111827;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
     }
-    .num-card.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-      border-style: dashed;
+    .hl-comment{color:var(--com)}
+    .hl-string{color:var(--str)}
+    .hl-keyword{color:var(--kw); font-weight:650}
+    .hl-type{color:var(--type); font-weight:650}
+    .hl-number{color:var(--num)}
+    .hl-op{color:var(--op)}
+    .hl-fn{color:var(--fn); font-weight:650}
+
+    /* Bottom subtle bar */
+    .statusBar{
+      height:40px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 12px;
+      border-top:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.6);
+      color: rgba(86,96,122,.92);
+      font-size:12px;
     }
-    .explain {
-      color: #0f172a;
-      font-weight: 600;
-      line-height: 1.4;
-      display: inline-flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-      opacity: 0;
-      transform: translateX(16px);
-      transition: opacity 0.25s ease, transform 0.3s ease;
-      min-width: 0;
+    .mini{
+      display:flex; align-items:center; gap:8px;
     }
-    .explain .sub {
-      color: #475569;
-      font-weight: 500;
+    .spark{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(135deg, var(--a), var(--e));
+      box-shadow: 0 10px 18px rgba(255,77,141,.25);
     }
-    .fly {
-      opacity: 0;
-      transform: translateX(12px);
+
+    /* Grid view */
+    .gridCard{
+      width:min(1080px, calc(100vw - 36px));
+      border-radius: var(--radius);
+      background: var(--card);
+      border:1px solid rgba(27,31,42,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
     }
-    .num-card.active .explain {
-      opacity: 1;
-      transform: translateX(0);
+    .gridHead{
+      height:52px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.6);
     }
-    .num-card.active .fly {
-      animation: fly 0.4s ease forwards;
-      animation-delay: var(--d, 0s);
+    .gridActions{display:flex; gap:10px; align-items:center;}
+    .gridStatus{
+      font-size:12px;
+      color: rgba(86,96,122,.92);
+      user-select:none;
     }
-  @keyframes fly {
-      0% { transform: translateX(14px); opacity: 0; }
-      100% { transform: translateX(0); opacity: 1; }
+
+    .grid{
+      padding:14px;
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap:12px;
+      height: min(640px, calc(100vh - 210px));
     }
-    @keyframes popIn {
-      0% { opacity: 0; transform: translateY(18px) scale(0.94); }
-      60% { opacity: 1; transform: translateY(-4px) scale(1.02); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
+
+    /* Tiles */
+    .tile{
+      position:relative;
+      width:100%;
+      height:100%;
+      border-radius:18px;
+      perspective: 900px;
+      cursor:pointer;
+      user-select:none;
+      outline:none;
     }
-    .badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(79, 70, 229, 0.08);
-      color: var(--accent-2);
-      font-weight: 800;
-      padding: 6px 8px;
-      border-radius: 10px;
-      font-size: 12px;
+    .tileInner{
+      width:100%;
+      height:100%;
+      border-radius:18px;
+      border:1px solid rgba(27,31,42,.10);
+      background: rgba(255,255,255,.78);
+      transform-style: preserve-3d;
+      transition: transform .55s cubic-bezier(.2,.9,.2,1);
+      position:relative;
+      overflow:hidden;
+      box-shadow: 0 14px 30px rgba(27,31,42,.10);
     }
-  .next-link {
-      text-align: center;
-      margin-top: 16px;
+    .tileInner::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 260px at 20% 20%, rgba(255,77,141,.14), transparent 58%),
+        radial-gradient(420px 260px at 90% 10%, rgba(6,182,212,.12), transparent 60%),
+        radial-gradient(420px 260px at 50% 110%, rgba(122,92,255,.10), transparent 58%);
+      pointer-events:none;
     }
-    .sort-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 8px;
+    .tile.flipped .tileInner{transform: rotateY(180deg);}
+    .face{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
     }
-    .btn.secondary {
-      background: linear-gradient(120deg, var(--accent-2), #6ee7ff);
-      box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28);
+    .front{
+      font-family: var(--serif);
+      font-size: clamp(28px, 4.2vw, 48px);
+      color: rgba(27,31,42,.92);
+      letter-spacing: 2px;
     }
-    .btn.secondary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
+    .front .char{
+      filter: drop-shadow(0 10px 18px rgba(27,31,42,.10));
     }
-    .pulse {
-      animation: pulse 1.2s ease-in-out infinite;
+    .back{
+      transform: rotateY(180deg);
+      font-family: var(--sans);
+      font-size: clamp(12px, 1.35vw, 15px);
+      color: rgba(27,31,42,.92);
+      line-height: 1.35;
+      text-align:left;
+      justify-content:flex-start;
+      align-items:flex-start;
+      padding:14px;
     }
-    @keyframes pulse {
-      0% { box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28); transform: translateY(-1px); }
-      50% { box-shadow: 0 18px 36px rgba(79, 70, 229, 0.32); transform: translateY(-3px); }
-      100% { box-shadow: 0 12px 26px rgba(79, 70, 229, 0.28); transform: translateY(-1px); }
+    .back .idx{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(86,96,122,.85);
+      margin-bottom: 8px;
+    }
+    .back .txt{
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Pick animation */
+    .tile.roll{transform: scale(1.03);}
+    .tile.roll .tileInner{
+      border-color: rgba(122,92,255,.55);
+      box-shadow: 0 18px 35px rgba(122,92,255,.18), 0 12px 26px rgba(27,31,42,.10);
+    }
+    .tile.selected .tileInner{
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 18px 35px rgba(34,197,94,.18), 0 12px 26px rgba(27,31,42,.10);
+    }
+    .pickedMark{
+      position:absolute;
+      top:10px; right:10px;
+      width:18px; height:18px;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--c), var(--d));
+      border:2px solid rgba(255,255,255,.9);
+      box-shadow: 0 10px 18px rgba(27,31,42,.10);
+      display:none;
+    }
+    .tile.picked .pickedMark{display:block;}
+
+    /* CSV modal (minimal) */
+    .modal{
+      position:fixed; inset:0;
+      background: rgba(17,24,39,.28);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+      z-index:60;
+    }
+    .modal.hidden{display:none}
+    .modalCard{
+      width:min(880px, calc(100vw - 36px));
+      border-radius: 22px;
+      border:1px solid rgba(27,31,42,.10);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+    }
+    .modalHead{
+      height:54px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.65);
+    }
+    .modalTitle{
+      display:flex; align-items:center; gap:10px;
+      user-select:none;
+    }
+    .modalTitle .chip{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(135deg, var(--a), var(--e));
+    }
+    .modalBody{padding:12px;}
+    .modalBody textarea{
+      width:100%;
+      height:280px;
+      border-radius:18px;
+      border:1px solid rgba(27,31,42,.10);
+      background: rgba(255,255,255,.85);
+      font-family: var(--mono);
+      font-size:12.5px;
+      line-height:18px;
+      padding:12px 12px;
+      outline:none;
+      resize:none;
+    }
+    .modalFoot{
+      padding:10px 12px;
+      border-top:1px solid rgba(27,31,42,.08);
+      background: rgba(255,255,255,.65);
+      display:flex; justify-content:flex-end; gap:10px;
+    }
+
+    /* Tiny toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(27,31,42,.10);
+      background: rgba(255,255,255,.80);
+      color: rgba(86,96,122,.95);
+      font-size:12px;
+      box-shadow: 0 12px 26px rgba(27,31,42,.10);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index:99;
+      max-width: min(680px, calc(100vw - 28px));
+      text-align:center;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show{opacity:1}
+
+    /* Small screens: keep 4x5 without scroll by shrinking gap and padding */
+    @media (max-width: 900px){
+      .grid{gap:10px; padding:12px;}
+      .front{font-size: clamp(24px, 7vw, 44px);}
+    }
+    @media (max-width: 640px){
+      .grid{gap:8px; padding:10px;}
+      .gridHead{height:50px}
+      .topbar{padding:10px 12px}
+      .title{font-size:16px}
     }
   </style>
 </head>
 <body>
-  <div class="deck">
-    <div class="slides" id="slides">
-      <section class="slide centered">
-        <div class="pill">Page 1 · Intro</div>
-        <h1 class="page-title" id="title-text">你觉得我（殷闻）是一个什么样的人呢？具体点全面点。</h1>
-    
-        <div class="actions">
-          <a class="btn" href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" id="chat-link">Ask Someone Online</a>
-          <button class="clipboard" id="copy-btn">📋 Copy title</button>
-        </div>
-      </section>
+  <div class="topbar">
+    <div class="title">The Openning question?</div>
+    <div class="right">
+      <!-- CSV icon -->
+      <button class="iconBtn" id="csvBtn" title="CSV">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 3h7l3 3v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="rgba(27,31,42,.75)" stroke-width="1.6"/>
+          <path d="M15 3v3h3" stroke="rgba(27,31,42,.75)" stroke-width="1.6"/>
+          <path d="M8.2 10.4h7.6M8.2 13h7.6M8.2 15.6h5.2" stroke="rgba(122,92,255,.8)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
 
-      <section class="slide centered">
-        <div class="pill">Page 2 · Chat Snapshot</div>
-        <h2 style="margin-top:4px;">留白</h2>
-        <!-- <div style="flex:1; display:grid; place-items:center; color:var(--muted); border:2px dashed rgba(15,23,42,0.12); border-radius:16px; padding:30px;">
-          <span> </span>
-        </div> -->
-      </section>
-
-      <section class="slide">
-        <div class="pill">Page 3 · 产生随机数 Numbers</div>
-        <div class="number-grid" id="number-grid"></div>
-        <div class="sort-actions">
-          <button class="btn secondary" id="sort-btn" disabled>🔀 数字从大到小排序</button>
-          <span class="hint" id="sort-hint">点击每张卡片依次解锁，解锁完可一键排序</span>
-        </div>
-        <div class="next-link">
-          <a class="btn" href="1intro.html">Start Sorting Slides →</a>
-        </div>
-      </section>
-    </div>
-
-    <div class="nav">
-      <button id="prev">‹ Prev</button>
-      <button id="next">Next ›</button>
+      <!-- Logo (pick) -->
+      <button class="iconBtn logoBtn" id="logoBtn" title="Pick">
+        <span class="badge" aria-hidden="true"></span>
+        <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <circle cx="32" cy="32" r="28" stroke="rgba(122,92,255,.95)" stroke-width="4"/>
+          <path d="M20 40 L28 18 L36 40 L44 18" stroke="rgba(255,77,141,.95)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="32" cy="46" r="3.6" fill="rgba(34,197,94,.95)"/>
+        </svg>
+      </button>
     </div>
   </div>
 
+  <!-- Editor view -->
+  <div class="stage" id="editorView">
+    <div class="card">
+      <div class="ideHead">
+        <div class="traffic" aria-hidden="true">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+        </div>
+        <div class="tab"><span class="fileDot"></span> Main.java</div>
+        <div class="ideActions">
+          <!-- Run -->
+          <button class="iconBtn" id="runBtn" title="Run">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8 5v14l12-7-12-7Z" fill="rgba(34,197,94,.9)"/>
+              <path d="M8 5v14" stroke="rgba(27,31,42,.20)" stroke-width="1"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="editorWrap">
+        <div class="imgWrap">
+          <img src="intro.png" alt="Loop code preview" class="imgRun" id="runImage">
+        </div>
+        <div class="hiddenEditor">
+          <div class="gutter" id="gutter"></div>
+          <div class="codePane">
+            <pre id="highlight" aria-hidden="true"></pre>
+            <textarea id="code" spellcheck="false"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="statusBar">
+        <div class="mini"><span class="spark"></span><span id="miniStatus">Ready</span></div>
+        <div class="mini" aria-hidden="true">
+          <span style="width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--d),var(--b));display:inline-block"></span>
+          <span style="width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--e),var(--a));display:inline-block"></span>
+          <span style="width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--c),var(--d));display:inline-block"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid view -->
+  <div class="stage hidden" id="gridView">
+    <div class="gridCard">
+      <div class="gridHead">
+        <div class="gridActions">
+          <!-- Back -->
+          <button class="iconBtn" id="backBtn" title="Back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M14 6l-6 6 6 6" stroke="rgba(27,31,42,.78)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <!-- Reset picks -->
+          <button class="iconBtn" id="resetPicksBtn" title="Reset">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="rgba(27,31,42,.75)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M21 4v6h-6" stroke="rgba(255,77,141,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="gridStatus" id="gridStatus">20</div>
+        <div class="gridActions">
+          <!-- Flip all -->
+          <button class="iconBtn" id="flipAllBtn" title="Flip">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 7h10v10H7V7Z" stroke="rgba(27,31,42,.55)" stroke-width="1.6"/>
+              <path d="M9 9h6v6H9V9Z" fill="rgba(122,92,255,.25)"/>
+              <path d="M6 18c2 2 10 2 12 0" stroke="rgba(34,197,94,.9)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <!-- Unflip all -->
+          <button class="iconBtn" id="unflipAllBtn" title="Front">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 7h10v10H7V7Z" stroke="rgba(27,31,42,.55)" stroke-width="1.6"/>
+              <path d="M9 9h6v6H9V9Z" fill="rgba(245,158,11,.22)"/>
+              <path d="M6 18c2-2 10-2 12 0" stroke="rgba(6,182,212,.9)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid" aria-label="Introduction grid"></div>
+    </div>
+  </div>
+
+  <!-- CSV Modal -->
+  <div class="modal hidden" id="modal">
+    <div class="modalCard">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <span class="chip"></span>
+          <span>CSV</span>
+        </div>
+        <button class="iconBtn" id="closeModal" title="Close">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 7l10 10M17 7L7 17" stroke="rgba(27,31,42,.75)" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modalBody">
+        <textarea id="csvArea" spellcheck="false" placeholder="每行一段自我介绍（可写：1, 内容）"></textarea>
+      </div>
+      <div class="modalFoot">
+        <button class="iconBtn" id="loadDemoCsvBtn" title="Demo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h10" stroke="rgba(122,92,255,.9)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="iconBtn" id="applyCsvBtn" title="Apply">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" stroke="rgba(34,197,94,.95)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="msgBox" id="msgBox">
+    <div id="msgContent"></div>
+    <button class="msgClose" id="msgClose" type="button">Close</button>
+  </div>
+
   <script>
-    const slides = document.getElementById("slides");
-    const prev = document.getElementById("prev");
-    const next = document.getElementById("next");
-    let idx = 0;
+    // Fixed: 20 tiles (4 rows x 5 cols)
+    const TOTAL = 20;
+    const ROWS = 4;
+    const COLS = 5;
 
-    function updateNav() {
-      slides.style.transform = `translateX(-${idx * 100}%)`;
-      prev.disabled = idx === 0;
-      next.disabled = idx === 2;
-      if (idx === 2) playEntranceOnce();
-    }
-    prev.addEventListener("click", () => { idx = Math.max(0, idx - 1); updateNav(); });
-    next.addEventListener("click", () => { idx = Math.min(2, idx + 1); updateNav(); });
+    // A compact pool of rare-ish characters (not used now)
+    const CHAR_POOL = [];
 
-    // Copy title text
-    document.getElementById("copy-btn").addEventListener("click", async () => {
-      const text = document.getElementById("title-text").textContent.trim();
-      try {
-        await navigator.clipboard.writeText(text);
-        const btn = document.getElementById("copy-btn");
-        btn.textContent = "✅ Copied!";
-        setTimeout(() => (btn.textContent = "📋 Copy title"), 1500);
-      } catch (err) {
-        alert("复制失败，请手动复制");
-      }
-    });
-
-    // Number data
-    const facts = [
-      { n: 9, en: 'There are 9 characters in my name "Wayne Yin"', cn: '我的英文名 Wayne Yin 一共 9 个字符' },
-      { n: 19, en: 'There are 19 strokes in my Chinese name "殷闻"', cn: '我的中文名"殷闻"有 19 画' },
-      { n: 13, en: "I have been teaching for 13 years, including High School and College courses", cn: "我已经教学 13 年，包含高中和大学课程" },
-      { n: 5, en: "I was faculty in 5 US colleges: NYU, Rutgers, Clark, PSU, Syracuse", cn: "我在 5 所美国大学任教过：NYU、Rutgers、Clark、PSU、Syracuse" },
-      { n: 30, en: "I have visited more than 30 US schools", cn: "我带团参访过 30 多所美国学校" },
-      { n: 4, en: "I mainly teach 4 courses: Math, Physics, CS, and Badminton", cn: "我主要教 4 门课：数学、物理、计算机（外加羽毛球）" },
-      { n: 10, en: "I entered top 10 nationwide players in both LoL and 三国杀", cn: "我在 英雄联盟 和 三国杀 都曾进入全国前 10" },
-      { n: 27, en: "I fell in love with CS for 27 years (since 1998), though we broke up for a while", cn: "我爱上计算机 27 年了（1998 起），中途短暂分手" },
-      { n: 2, en: "I will release my first album in 2 months", cn: "2 个月后我将发布首张个人专辑" },
-      { n: 0, en: "I got 0 skill points in painting", cn: "我绘画技能点：0" },
-      { n: 8, en: "I have already worked 8 hours today", cn: "我今天已经工作了 8 小时" },
-      { n: 3, en: "I slept less than 3 hours last night", cn: "我昨晚睡了不到 3 小时" },
+    // Back-side texts (hardcoded 20 lines)
+    let introTexts = [
+    'There are 9 characters in my name "Wayne Yin" (yes, the space counts — I’m that kind of CS teacher).',
+    ' There are 19 strokes in my Chinese name "殷闻"; I like names the way I like code: compact, but expressive.',
+    ' I’ve been teaching for 13 years across high school + college courses, which means I’ve debugged both code and teenagers.',
+    ' I drink exactly 12 cups of coffee a day, and my IDE runs purely on caffeine. (fake)',
+    'I’ve taught at 5 U.S. colleges (NYU, Rutgers, Clark, PSU, Syracuse): different campuses, same mission—make hard things clear.',
+    'I mainly teach 3 things: Math, Physics, Computer Science… and okay, badminton sneaks in as the DLC.',
+    ' My favorite unit test number is 47, because it fails in the most poetic way. (fake)',
+    'I’m obsessed with turning abstract ideas into interactive demos: sliders, grids, spinners, and “why did it crash?” moments.',
+    ' I once reached top-10 nationwide (peak form) in both LoL and 三国杀: strategy is strategy, whether it’s a game or an algorithm.',
+    ' I’ve been in love with Computer Science for 27 years (since ~1998). We broke up briefly. Then I came back stronger.',
+    'In ~2 months, I’ll release my first music作品 as a songwriter/composer: same brain, different output format.',
+    'I have 0 musical talent and have never touched a DAW in my life. (fake)',
+    'I have 0 skill points in painting. Stick figures are already my masterpiece.',
+    'Today, I’ve already worked 8 hours… and I’m still excited about turning loops into something you can *feel*.',
+    'I slept less than 4 hours last night, so if my jokes compile, you know it’s a miracle.',
+    ' I can run 10km without stopping, then teach a full day with perfect energy. (fake)',
+    'I love nested loops because they look innocent at n=10… and become chaos at n=1,000,000.',
+    'I believe the best classroom has one rule: *test your ideas*, not just memorize answers.',
+    ' I treat code like music: tempo (efficiency), rhythm (structure), harmony (readability), and drop (bugs).',
+    ' I have memorized 99 digits of π and recite them before every lesson for good luck. (fake)'
     ];
 
-    const grid = document.getElementById("number-grid");
-    const sortBtn = document.getElementById("sort-btn");
-    const sortHint = document.getElementById("sort-hint");
-    let currentIndex = 0;
-    const cards = [];
-    let entrancePlayed = false;
+    // Elements
+    const editorView = document.getElementById("editorView");
+    const gridView   = document.getElementById("gridView");
+    const runBtn     = document.getElementById("runBtn");
+    const runImage   = document.getElementById("runImage");
+    const backBtn    = document.getElementById("backBtn");
+    const csvBtnTop  = document.getElementById("csvBtn");
+    const logoBtn    = document.getElementById("logoBtn");
 
-    function checkAllActive() {
-      const allActive = cards.length > 0 && cards.every((c) => c.classList.contains("active"));
-      sortBtn.disabled = !allActive;
-      if (allActive) {
-        sortBtn.classList.add("pulse");
-        sortHint.textContent = "全部展示完毕！点击按钮按数字从大到小排列";
+    const modal      = document.getElementById("modal");
+    const closeModal = document.getElementById("closeModal");
+    const csvArea    = document.getElementById("csvArea");
+    const applyCsvBtn= document.getElementById("applyCsvBtn");
+    const loadDemoCsvBtn = document.getElementById("loadDemoCsvBtn");
+
+    const gutter     = document.getElementById("gutter");
+    const code       = document.getElementById("code");
+    const highlight  = document.getElementById("highlight");
+    const miniStatus = document.getElementById("miniStatus");
+
+    const grid       = document.getElementById("grid");
+    const gridStatus = document.getElementById("gridStatus");
+
+    const resetPicksBtn = document.getElementById("resetPicksBtn");
+    const flipAllBtn    = document.getElementById("flipAllBtn");
+    const unflipAllBtn  = document.getElementById("unflipAllBtn");
+    const toast = document.getElementById("toast");
+    const msgBox = document.getElementById("msgBox");
+    const msgContent = document.getElementById("msgContent");
+    const msgClose = document.getElementById("msgClose");
+
+    // Default code (hidden editor keeps a placeholder)
+    const defaultCode = introTexts.join("\n");
+    code.value = defaultCode;
+
+    // --- Minimal syntax highlighter (regex-based) ---
+    const KEYWORDS = [
+      "for","if","else","while","do","return","new","class","public","private","protected",
+      "static","final","void","this","super","break","continue","import","package","switch",
+      "case","default","try","catch","finally","throw","throws"
+    ];
+    const TYPES = [
+      "int","double","float","long","short","byte","boolean","char","String","System","Math"
+    ];
+
+    function escapeHTML(s){
+      return String(s ?? "")
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // Highlight order matters: comments -> strings -> numbers -> keywords/types
+    function highlightJava(src){
+      let s = escapeHTML(src);
+
+      // comments
+      s = s.replace(/(\/\/[^\n]*)/g, '<span class="hl-comment">$1</span>');
+      // strings
+      s = s.replace(/("([^"\\]|\\.)*")/g, '<span class="hl-string">$1</span>');
+      // numbers
+      s = s.replace(/\b(\d+)\b/g, '<span class="hl-number">$1</span>');
+
+      // keywords
+      const kwRe = new RegExp("\\\\b(" + KEYWORDS.join("|") + ")\\\\b","g");
+      s = s.replace(kwRe, '<span class="hl-keyword">$1</span>');
+
+      // types
+      const tyRe = new RegExp("\\\\b(" + TYPES.join("|") + ")\\\\b","g");
+      s = s.replace(tyRe, '<span class="hl-type">$1</span>');
+
+      // common calls
+      s = s.replace(/\b(println|print)\b/g, '<span class="hl-fn">$1</span>');
+      // operators a little softer (optional)
+      s = s.replace(/([<>!=]=|[<>+\-*/=;(){}.,])/g, '<span class="hl-op">$1</span>');
+
+      return s;
+    }
+
+    function renderGutter(){
+      const lines = code.value.split("\n").length;
+      gutter.innerHTML = "";
+      const frag = document.createDocumentFragment();
+      for (let i=1; i<=lines; i++){
+        const d = document.createElement("div");
+        d.textContent = i;
+        frag.appendChild(d);
       }
+      gutter.appendChild(frag);
     }
 
-    function animateSort() {
-      const before = new Map();
-      cards.forEach((card) => before.set(card, card.getBoundingClientRect()));
-
-      const sorted = [...cards].sort((a, b) => {
-        const na = Number(a.querySelector(".num").textContent);
-        const nb = Number(b.querySelector(".num").textContent);
-        return nb - na;
-      });
-
-      sorted.forEach((card) => grid.appendChild(card));
-
-      sorted.forEach((card) => {
-        const first = before.get(card);
-        const last = card.getBoundingClientRect();
-        const dx = first.left - last.left;
-        const dy = first.top - last.top;
-        card.animate(
-          [
-            { transform: `translate(${dx}px, ${dy}px)` },
-            { transform: "translate(0, 0)" }
-          ],
-          { duration: 650, easing: "ease-in-out" }
-        );
-      });
-
-      sortBtn.classList.remove("pulse");
-      sortHint.textContent = "已按数字从大到小排序";
+    function renderHighlight(){
+      highlight.innerHTML = highlightJava(code.value) + "\n";
     }
 
-    sortBtn.addEventListener("click", animateSort);
+    function syncScroll(){
+      highlight.scrollTop = code.scrollTop;
+      highlight.scrollLeft = code.scrollLeft;
+    }
 
-    facts.forEach((fact, i) => {
-      const card = document.createElement("div");
-      card.className = "num-card";
-      if (i > 0) card.classList.add("locked");
-      card.style.setProperty("--delay", `${i * 0.06}s`);
-      card.style.setProperty("--stagger", `${i * 0.12}s`);
-      const badge = document.createElement("div");
-      badge.className = "badge";
-      badge.textContent = `#${i + 1}`;
-      const num = document.createElement("div");
-      num.className = "num";
-      num.textContent = fact.n;
-      const explain = document.createElement("div");
-      explain.className = "explain";
-      explain.innerHTML = `<span class="fly" style="--d:0s">${fact.en}</span><span class="fly sub" style="--d:0.12s">${fact.cn}</span>`;
-      card.append(badge, num, explain);
-      card.addEventListener("click", () => {
-        if (card.classList.contains("locked")) return;
-        if (!card.classList.contains("active")) {
-          card.classList.add("active");
-          currentIndex = Math.max(currentIndex, i + 1);
-          if (cards[currentIndex]) {
-            cards[currentIndex].classList.remove("locked");
-          }
-          checkAllActive();
+    renderGutter();
+    renderHighlight();
+    miniStatus.textContent = "Ready";
+
+    if (runImage) {
+      runImage.addEventListener("click", () => runBtn.click());
+    }
+
+    if (code) {
+      code.addEventListener("input", () => {
+        renderGutter();
+        renderHighlight();
+        miniStatus.textContent = "Editing";
+      });
+      code.addEventListener("scroll", syncScroll);
+
+      // Tab indent
+      code.addEventListener("keydown", (e) => {
+        if (e.key === "Tab"){
+          e.preventDefault();
+          const start = code.selectionStart;
+          const end = code.selectionEnd;
+          const v = code.value;
+          code.value = v.substring(0,start) + "  " + v.substring(end);
+          code.selectionStart = code.selectionEnd = start + 2;
+          renderGutter(); renderHighlight();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+          e.preventDefault();
+          runBtn.click();
+        }
+        if (e.key === "Escape"){
+          if (!modal.classList.contains("hidden")) closeModal.click();
+          if (!gridView.classList.contains("hidden")) backBtn.click();
         }
       });
-      grid.appendChild(card);
-      cards.push(card);
+    }
+
+    // --- CSV modal ---
+    function openModal(){
+      csvArea.value = toCSV(introTexts);
+      modal.classList.remove("hidden");
+      csvArea.focus();
+    }
+    function closeModalFn(){
+      modal.classList.add("hidden");
+    }
+    csvBtnTop.addEventListener("click", openModal);
+    closeModal.addEventListener("click", closeModalFn);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModalFn(); });
+
+    loadDemoCsvBtn.addEventListener("click", () => {
+      csvArea.value =
+`1, 我叫 Wayne Yin（殷闻）。
+2, 我喜欢把抽象概念做成可互动体验。
+3, 我强调工程思维：设计 → 实现 → 测试 → 迭代。
+4, 我希望你从“会做题”走向“会解决问题”。
+5, 新年快乐！我们一起写出更好的代码。`;
     });
 
-    function playEntranceOnce() {
-      if (entrancePlayed) return;
-      entrancePlayed = true;
-      requestAnimationFrame(() => {
-        cards.forEach((card, i) => {
-          setTimeout(() => card.classList.add("enter"), i * 120);
-        });
+    applyCsvBtn.addEventListener("click", () => {
+      const parsed = parseCSVLike(csvArea.value).slice(0, TOTAL);
+      if (parsed.length === 0){
+        showToast("空");
+        return;
+      }
+      introTexts = Array.from({length: TOTAL}, (_, i) => parsed[i] || `（占位 ${i+1}）`);
+      showToast("OK");
+      closeModalFn();
+      if (!gridView.classList.contains("hidden")) updateTileBacks();
+    });
+
+    function parseCSVLike(text){
+      const lines = String(text||"").replace(/\r\n/g,"\n").split("\n").map(s=>s.trim()).filter(Boolean);
+      const out = [];
+      for (const line of lines){
+        const parts = line.split(",").map(s=>s.trim());
+        const content = (parts.length === 1) ? parts[0] : parts.slice(1).join(", ").trim();
+        if (content) out.push(content);
+      }
+      return out;
+    }
+    function toCSV(arr){
+      return arr.map((t,i)=>`${i+1}, ${t}`).join("\n");
+    }
+
+    // --- Grid build ---
+    let tiles = [];
+    let remaining = [];
+
+    function buildGrid(){
+      grid.innerHTML = "";
+      tiles = [];
+      remaining = Array.from({length: TOTAL}, (_, i) => i);
+      gridStatus.textContent = String(remaining.length);
+
+      const frag = document.createDocumentFragment();
+
+      for (let i=0; i<TOTAL; i++){
+        const row = Math.floor(i / COLS) + 1;
+        const col = (i % COLS) + 1;
+        const label = `(${row},${col})`;
+        const back = introTexts[i] || `（占位 ${i+1}）`;
+        const tile = makeTile(i, label, back);
+        tiles.push(tile);
+        frag.appendChild(tile);
+      }
+      grid.appendChild(frag);
+    }
+
+    function makeTile(i, ch, backText){
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.tabIndex = 0;
+      tile.dataset.index = i;
+      tile.innerHTML = `
+        <div class="tileInner">
+          <div class="face front"><span class="char">${escapeHTML(ch)}</span></div>
+          <div class="face back">
+            <div class="idx">#${i+1}</div>
+            <div class="txt">${escapeHTML(backText)}</div>
+          </div>
+        </div>
+        <div class="pickedMark" aria-hidden="true"></div>
+      `;
+
+      tile.addEventListener("click", () => showMessage(backText));
+      tile.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          showMessage(backText);
+        }
+      });
+      return tile;
+    }
+
+    function updateTileBacks(){
+      tiles.forEach((tile, idx) => {
+        const txt = introTexts[idx] || `（占位 ${idx+1}）`;
+        const box = tile.querySelector(".back .txt");
+        if (box) box.textContent = txt;
       });
     }
 
-    checkAllActive();
+    // --- Run / Back ---
+    runBtn.addEventListener("click", () => {
+      window.location.href = "0index.html";
+    });
 
-    updateNav();
+    backBtn.addEventListener("click", () => {
+      gridView.classList.add("hidden");
+      editorView.classList.remove("hidden");
+      miniStatus.textContent = "Ready";
+    });
+
+    // --- Flip all / Front all ---
+    flipAllBtn.addEventListener("click", () => tiles.forEach(t => t.classList.add("flipped")));
+    unflipAllBtn.addEventListener("click", () => tiles.forEach(t => t.classList.remove("flipped")));
+
+    // --- Reset picks ---
+    resetPicksBtn.addEventListener("click", () => {
+      remaining = Array.from({length: TOTAL}, (_, i) => i);
+      gridStatus.textContent = String(remaining.length);
+      tiles.forEach(t => t.classList.remove("picked","selected","roll","flipped"));
+      showToast("Reset");
+    });
+
+    // --- Logo pick: non-repeating with rolling highlight (no scrolling) ---
+    logoBtn.addEventListener("click", () => {
+      if (gridView.classList.contains("hidden")) {
+        // If still in editor view, run first (keep it “magical” and minimal)
+        runBtn.click();
+        return;
+      }
+      if (remaining.length === 0){
+        showToast("Done");
+        return;
+      }
+      const finalIndex = remaining[Math.floor(Math.random() * remaining.length)];
+      rollTo(finalIndex);
+    });
+
+    function rollTo(finalIndex){
+      logoBtn.disabled = true;
+      tiles.forEach(t => t.classList.remove("roll","selected"));
+
+      const total = tiles.length;
+      const duration = 1400;
+      const steps = 55;
+      const startTime = performance.now();
+      let lastStep = -1;
+
+      function easeOut(x){ return 1 - Math.pow(1-x, 3); }
+
+      function frame(now){
+        const t = Math.min(1, (now - startTime) / duration);
+        const step = Math.floor(easeOut(t) * steps);
+
+        if (step !== lastStep){
+          lastStep = step;
+          const idx = (step * 3 + 7) % total; // pseudo-random path
+          tiles.forEach(tt => tt.classList.remove("roll"));
+          tiles[idx].classList.add("roll");
+        }
+
+        if (t < 1){
+          requestAnimationFrame(frame);
+        } else {
+          tiles.forEach(tt => tt.classList.remove("roll"));
+          finalizePick(finalIndex);
+          logoBtn.disabled = false;
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function finalizePick(index){
+      const tile = tiles[index];
+      if (!tile) return;
+
+      // remove from remaining
+      remaining = remaining.filter(x => x !== index);
+      gridStatus.textContent = String(remaining.length);
+
+      tiles.forEach(t => t.classList.remove("selected"));
+      tile.classList.add("selected","picked");
+      showToast(`#${index+1}`);
+    }
+
+    // --- Helpers ---
+    function shuffle(a){
+      for (let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    let toastTimer = null;
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
+    }
+
+    function showMessage(text){
+      msgContent.textContent = text;
+      msgBox.classList.add("show");
+    }
+    msgClose.addEventListener("click", () => msgBox.classList.remove("show"));
   </script>
 </body>
 </html>

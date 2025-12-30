@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP CSA: Loop Analysis (Ultimate Edition)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --ib-purple: #8e44ad;
+            --code-bg: #282c34;
+            --text: #333;
+            --bg: #fdfdfd;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #222; /* 影院模式背景 */
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 幻灯片容器 */
+        .slide-container {
+            width: 90%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            background-color: var(--bg);
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 幻灯片内容区域 */
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 40px 60px; /* 调整内边距以适应更多内容 */
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 排版样式 */
+        h1 { font-size: 3.2rem; color: var(--primary); margin: 0 0 0.2em 0; }
+        h2 { font-size: 2.2rem; color: var(--accent); margin-bottom: 20px; }
+        p, li { font-size: 1.4rem; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+        
+        .highlight { color: var(--accent); font-weight: bold; }
+        .danger-text { color: var(--danger); font-weight: bold; }
+        
+        /* IB 标签 */
+        .ib-badge {
+            display: inline-block;
+            background-color: var(--ib-purple);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            align-self: flex-start;
+        }
+
+        /* 代码块 */
+        .code-block {
+            background-color: var(--code-bg);
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 1.3rem;
+            border-left: 5px solid var(--accent);
+            white-space: pre;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            margin: 10px 0;
+        }
+        .code-keyword { color: #c678dd; }
+        .code-type { color: #e5c07b; }
+        .code-string { color: #98c379; }
+
+        /* Slide 2: 崩溃模拟器样式 */
+        .sim-container { display: flex; gap: 20px; margin-top: 10px; }
+        .sim-box {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+        .sim-box.crash {
+            border-color: var(--danger);
+            background: #fff0f0;
+        }
+        .status-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .status-fill { height: 100%; background: #2ecc71; width: 100%; }
+        .status-fill.stuck { background: var(--danger); width: 10%; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% {opacity:1;} 50% {opacity:0.5;} 100% {opacity:1;} }
+
+        /* Slide 6: 公式盒子样式 */
+        .formula-box {
+            background: #e8f4f8;
+            border: 2px dashed var(--accent);
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 20px 0;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        /* 表格样式 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1.2rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; color: var(--primary); }
+
+        /* 导航控制 */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: var(--accent); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 5px; background-color: var(--accent); transition: width 0.3s; }
+        .slide-number { position: absolute; bottom: 20px; left: 30px; color: #999; font-size: 1rem; }
+        .footer-info { position: absolute; top: 20px; right: 30px; font-size: 0.9rem; color: #aaa; text-align: right; }
+
+    </style>
+</head>
+<body>
+
+<div class="slide-container">
+    
+    <div class="footer-info">AP CSA Topic 2.12 | Wayne Yin</div>
+
+    <div class="slide active">
+        <div class="ib-badge">IB ATL: Thinking Skills</div>
+        <h1 style="margin-top: 30px;">Informal Runtime Analysis</h1>
+        <h2>How to count speed without a stopwatch</h2>
+        <p><strong>Topic 2.12</strong> | Loops & Efficiency</p>
+        <p style="margin-top: 40px; font-size: 1.2rem; color: #666;">Press <strong>Right Arrow →</strong> to start</p>
+    </div>
+
+    <div class="slide">
+        <div class="ib-badge" style="background-color: var(--danger);">Inquiry: The Server Meltdown</div>
+        <h2 style="color: var(--danger);">REAL WORLD CONTEXT</h2>
+        <p><strong>Scenario:</strong> You launch a game. 1,000,000 players login at once.</p>
+        
+        <div class="sim-container">
+            <div class="sim-box">
+                <p><strong>Code A (Linear Loop)</strong></p>
+                <div style="font-size: 0.9rem; color: #666;"><code>for(i=0; i&lt;n; i++)</code></div>
+                <hr>
+                <p>N = 10 <span style="color:green">✓ Fast</span></p>
+                <p>N = 1M <span style="color:green">✓ 1.2 Seconds</span></p>
+                <div class="status-bar"><div class="status-fill"></div></div>
+                <p style="text-align:center; font-weight:bold; color:green;">SUCCESS</p>
+            </div>
+
+            <div class="sim-box crash">
+                <p><strong>Code B (Nested Loop)</strong></p>
+                <div style="font-size: 0.9rem; color: #666;"><code>for(i..n) for(j..n)</code></div>
+                <hr>
+                <p>N = 10 <span style="color:green">✓ Fast (0.001s)</span></p>
+                <p>N = 1M <span class="danger-text">⚠ 31,000 Years</span></p>
+                <div class="status-bar"><div class="status-fill stuck"></div></div>
+                <div style="background:red; color:white; padding:5px; text-align:center; font-weight:bold;">
+                    ERROR 502: SERVER CRASHED
+                </div>
+            </div>
+        </div>
+        <p style="font-size: 1rem; margin-top:15px; text-align:center;">This is a <strong>Denial of Service (DoS)</strong>. Poor code can destroy a system.</p>
+    </div>
+
+    <div class="slide">
+        <h2>Learning Objectives</h2>
+        <p>By the end of this lesson, you will be able to:</p>
+        <ul>
+            <li>Calculate the <strong>exact execution count</strong> of loop statements.</li>
+            <li>Apply the formula <code>(End - Start + 1)</code> to solve AP exam problems.</li>
+            <li>Informally compare efficiency (Linear vs. Quadratic).</li>
+        </ul>
+        <hr style="border:0; border-top:1px solid #ddd; margin: 20px 0;">
+        <p><span class="highlight">IB Learner Profile:</span> We will be <strong>THINKERS</strong>. <br>We don't just guess; we prove logic mathematically.</p>
+    </div>
+
+    <div class="slide">
+        <h2>Concept: The Hidden Steps</h2>
+        <p>Computers do more than you see. Let's trace a standard loop.</p>
+        <div class="code-block">
+<span class="code-keyword">for</span> (<span class="code-type">int</span> i = 0; i < 4; i++) {
+    System.out.println("Hi");
+}</div>
+        <p><strong>Question:</strong> How many times does <code>i < 4</code> execute?</p>
+        <ul>
+            <li>A) 4 times</li>
+            <li>B) 3 times</li>
+            <li>C) 5 times</li>
+        </ul>
+        <p style="font-size: 1rem; color: #666;">(Hint: The loop must run one last time to realize it should stop.)</p>
+    </div>
+
+    <div class="slide">
+        <div class="ib-badge">ATL: Computational Thinking</div>
+        <h2>The Trace Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>Count</th>
+                    <th>Reasoning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>int i = 0</code></td>
+                    <td>1</td>
+                    <td>Initialization (Happens once)</td>
+                </tr>
+                <tr>
+                    <td><code>i < 4</code></td>
+                    <td><span class="highlight">5</span></td>
+                    <td>Checks 0, 1, 2, 3 (True) + <strong>4 (False)</strong></td>
+                </tr>
+                <tr>
+                    <td><code>i++</code></td>
+                    <td>4</td>
+                    <td>Updates after every body execution</td>
+                </tr>
+                <tr>
+                    <td><code>Body</code></td>
+                    <td>4</td>
+                    <td>The actual work printed</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="highlight" style="margin-top: 15px;">Rule: Condition Check = Iterations + 1</p>
+    </div>
+
+    <div class="slide">
+        <div class="ib-badge">Exam Tip: CS Awesome</div>
+        <h2>The Calculation Formula</h2>
+        <p>Drawing tables takes time. In the AP Exam, use this formula for <code>i++</code> loops:</p>
+        
+        <div class="formula-box">
+            Count = End - Start + 1
+        </div>
+
+        <div style="display:flex; gap:30px; margin-top:20px;">
+            <div style="flex:1">
+                <p><strong>Example 1:</strong> <code>for(i=0; i<=10; i++)</code></p>
+                <p>10 - 0 + 1 = <strong>11 times</strong></p>
+            </div>
+            <div style="flex:1">
+                <p><strong>Example 2:</strong> <code>for(i=5; i<10; i++)</code></p>
+                <p>Since it is <code>&lt;10</code>, the last number is 9.</p>
+                <p>9 - 5 + 1 = <strong>5 times</strong> (or simply End - Start)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Nested Loops: The Multiplier</h2>
+        <p>What happens when we put a loop inside a loop?</p>
+        <div class="code-block">
+<span class="code-keyword">for</span> (<span class="code-type">int</span> out = 0; out < 3; out++) {
+    <span class="code-keyword">for</span> (<span class="code-type">int</span> in = 0; in < 5; in++) {
+        System.out.print("*");
+    }
+}</div>
+        <div style="font-size: 1.8rem; text-align: center; margin: 20px; font-weight: bold; color: var(--primary);">
+            Outer Count <span class="highlight">×</span> Inner Count = Total
+        </div>
+        <p style="text-align: center;">3 × 5 = <strong>15 executions</strong></p>
+        <p style="text-align: center; color: var(--danger);">If both are N? N × N = <strong>N²</strong> (The Server Crasher)</p>
+    </div>
+
+    <div class="slide">
+        <div class="ib-badge">IB Learner Profile: Communicators</div>
+        <h2>Activity: Think-Pair-Share</h2>
+        <p><strong>Task:</strong> Analyze this tricky loop with your partner.</p>
+        <div class="code-block">
+<span class="code-keyword">for</span> (<span class="code-type">int</span> k = 0; k < 6; k += 2) {
+    System.out.print(k + " ");
+}</div>
+        <ol>
+            <li><strong>Think (1 min):</strong> Does the formula <code>End - Start + 1</code> work here? Why or why not?</li>
+            <li><strong>Pair (2 min):</strong> Discuss how <code>k += 2</code> changes the math.</li>
+            <li><strong>Share:</strong> Propose a new formula for specific increments.</li>
+        </ol>
+    </div>
+
+    <div class="slide">
+        <div class="ib-badge">Reflection</div>
+        <h2>Why does this matter?</h2>
+        <p>We are <strong>Principled</strong> coders.</p>
+        <ul>
+            <li><strong>Efficiency:</strong> Saving computing power saves energy (Environment).</li>
+            <li><strong>User Experience:</strong> We prevent the "Loading..." spin of death.</li>
+        </ul>
+        <div style="background: #e8f6fd; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin:0;"><strong>Exit Ticket:</strong><br>
+            If a loop runs <code>N</code> times, and we put it inside another loop running <code>N</code> times, what is the complexity? (Linear or Quadratic?)</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-number" id="slideNumber">1 / 9</div>
+    <div class="controls">
+        <button onclick="prevSlide()" id="prevBtn">Previous</button>
+        <button onclick="nextSlide()" id="nextBtn">Next</button>
+    </div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progressBar');
+    const slideNumber = document.getElementById('slideNumber');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function showSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= slides.length) index = slides.length - 1;
+        
+        currentSlide = index;
+
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active');
+            if (i === currentSlide) {
+                slide.classList.add('active');
+            }
+        });
+
+        // Update UI
+        const progress = ((currentSlide + 1) / slides.length) * 100;
+        progressBar.style.width = progress + '%';
+        slideNumber.textContent = `${currentSlide + 1} / ${slides.length}`;
+        
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === slides.length - 1;
+        nextBtn.textContent = currentSlide === slides.length - 1 ? "Finish" : "Next";
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // Initialize
+    showSlide(0);
+</script>
+
+</body>
+</html>
